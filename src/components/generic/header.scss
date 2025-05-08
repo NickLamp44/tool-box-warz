@@ -1,0 +1,14 @@
+.header {
+  padding: 80px 24px 20px;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .search-form {
+    display: flex;
+    gap: 10px;
+    max-width: 400px;
+    align-self: flex-end;
+  }
+}
