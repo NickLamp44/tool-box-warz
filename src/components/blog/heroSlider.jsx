@@ -1,7 +1,12 @@
+// Frameworks & Libraries
+
+// Pages & Components
+
+// Styling
 import { useState } from "react";
 import Carousel from "react-bootstrap/Carousel";
 
-export const HeroCarousel = ({}) => {
+export default function HeroCarousel({}) {
   const [index, setIndex] = useState(0);
 
   const handleSelect = (selectedIndex) => {
@@ -38,4 +43,4 @@ export const HeroCarousel = ({}) => {
       </Carousel.Item>
     </Carousel>
   );
-};
+}

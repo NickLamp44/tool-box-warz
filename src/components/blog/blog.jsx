@@ -1,11 +1,17 @@
 // Blogs: Basic Blog w hero at top, text & photos, gallery at bottom, comment section
 // options for video blogs
 
+// Frameworks & Libraries
+
+// Pages & Components
+
+// Styling
+
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import PropTypes from "prop-types";
 
-const Blog = ({ blogData }) => {
+export default function Blog({ blogData }) {
   const { title, subtitle, author, date, sections, contact } = blogData;
 
   return (
@@ -46,7 +52,7 @@ const Blog = ({ blogData }) => {
       </div>
     </div>
   );
-};
+}
 
 Blog.propTypes = {
   blogData: PropTypes.shape({
@@ -69,5 +75,3 @@ Blog.propTypes = {
     }),
   }).isRequired,
 };
-
-export default Blog;

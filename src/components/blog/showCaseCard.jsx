@@ -1,8 +1,13 @@
+// Frameworks & Libraries
+
+// Pages & Components
+
+// Styling
 import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 
-export const showCaseCard = ({}) => {
+export default function showCaseCard({}) {
   return (
     <Card style={{ width: "18rem" }}>
       <Card.Img variant="top" src="holder.js/100px180" />
@@ -16,4 +21,4 @@ export const showCaseCard = ({}) => {
       </Card.Body>
     </Card>
   );
-};
+}

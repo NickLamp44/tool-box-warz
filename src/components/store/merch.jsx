@@ -1,5 +1,3 @@
-// Comments: Basic Comments w/ replies and reactions
-
 // Frameworks & Libraries
 
 // Pages & Components

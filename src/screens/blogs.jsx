@@ -1,11 +1,17 @@
-// Blogs: Basic Blog sorting & filtering
-// options for video blogs
-// Category button filters
+// Blogs: Basic Blog sorting & filtering with MUI
 
 import React, { useState } from "react";
-import { Container, Row, Col, Button, ButtonGroup } from "react-bootstrap";
-import { BlogCard } from "../components/blog/blogCard";
+import {
+  Container,
+  Typography,
+  Button,
+  ButtonGroup,
+  Grid,
+  Box,
+} from "@mui/material";
+import BlogCard from "../components/blog/blogCard";
 
+// Mock blog data
 const mockBlogs = [
   {
     id: "pro-tool-case",
@@ -49,7 +55,7 @@ const mockBlogs = [
 
 const categories = ["all", "tools", "video", "maintenance"];
 
-const Blogs = () => {
+export default function Blogs() {
   const [activeCategory, setActiveCategory] = useState("all");
 
   const filteredBlogs =
@@ -58,32 +64,44 @@ const Blogs = () => {
       : mockBlogs.filter((blog) => blog.category === activeCategory);
 
   return (
-    <Container className="my-5">
-      <h2 className="mb-4">Our Blogs</h2>
+    <Container sx={{ my: 6 }}>
+      <Typography variant="h4" gutterBottom>
+        Our Blogs
+      </Typography>
 
-      {/* Category Filters */}
-      <ButtonGroup className="mb-4">
-        {categories.map((cat) => (
-          <Button
-            key={cat}
-            variant={activeCategory === cat ? "primary" : "outline-primary"}
-            onClick={() => setActiveCategory(cat)}
-          >
-            {cat.charAt(0).toUpperCase() + cat.slice(1)}
-          </Button>
-        ))}
-      </ButtonGroup>
+      {/* Category Filter Buttons */}
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
+        <ButtonGroup variant="text" aria-label="category button group">
+          {categories.map((cat) => (
+            <Button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              variant={activeCategory === cat ? "contained" : "text"}
+              sx={{
+                textTransform: "capitalize",
+                color: activeCategory === cat ? "white" : "inherit",
+                backgroundColor:
+                  activeCategory === cat ? "primary.main" : "transparent",
+                "&:hover": {
+                  backgroundColor:
+                    activeCategory === cat ? "primary.dark" : "action.hover",
+                },
+              }}
+            >
+              {cat}
+            </Button>
+          ))}
+        </ButtonGroup>
+      </Box>
 
-      {/* Blog Cards */}
-      <Row>
+      {/* Blog Cards Grid */}
+      <Grid container spacing={4}>
         {filteredBlogs.map((blog) => (
-          <Col key={blog.id} sm={12} md={6} lg={4} className="d-flex">
+          <Grid item key={blog.id} xs={12} sm={6} md={4}>
             <BlogCard blog={blog} />
-          </Col>
+          </Grid>
         ))}
-      </Row>
+      </Grid>
     </Container>
   );
-};
-
-export default Blogs;
+}
