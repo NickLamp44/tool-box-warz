@@ -6,12 +6,12 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/navigation/navBar";
 import Footer from "./components/generic/footer";
 
-import UserAccess from "./screens/uam";
 import Blogs from "./screens/blogs";
 import ShowCASE from "./screens/showCase";
 import Merch from "./screens/merch";
 import Checkout from "./screens/checkOut";
 import Profile from "./screens/profile";
+import UserAccess from "./screens/uam";
 
 // Stlying
 import "./App.css";
@@ -31,6 +31,7 @@ function App() {
             <Route path="/showCASE" element={<ShowCASE />} />
             <Route path="/shop" element={<Merch />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/uam" element={<UserAccess />} />
             <Route path="/profile" element={<Profile />} />
           </Routes>
         </main>

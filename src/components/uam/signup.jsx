@@ -16,6 +16,8 @@ import { styled } from "@mui/material/styles";
 
 import { GoogleIcon, FacebookIcon } from "./customIcons";
 
+import { registerUser } from "../../services/firebaseAuth";
+
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -73,6 +75,7 @@ export default function SignUp(props) {
 
     let isValid = true;
 
+    // Reject sign up if Email is formatted incorrect
     if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
       setEmailError(true);
       setEmailErrorMessage("Please enter a valid email address.");
@@ -82,6 +85,7 @@ export default function SignUp(props) {
       setEmailErrorMessage("");
     }
 
+    // Reject sign up if Password is formatted incorrect
     if (!password.value || password.value.length < 6) {
       setPasswordError(true);
       setPasswordErrorMessage("Password must be at least 6 characters long.");
@@ -91,6 +95,7 @@ export default function SignUp(props) {
       setPasswordErrorMessage("");
     }
 
+    //Reject sign up if Name is formatted incorrect
     if (!name.value || name.value.length < 1) {
       setNameError(true);
       setNameErrorMessage("Name is required.");
@@ -103,18 +108,24 @@ export default function SignUp(props) {
     return isValid;
   };
 
-  const handleSubmit = (event) => {
-    if (nameError || emailError || passwordError) {
-      event.preventDefault();
-      return;
-    }
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!validateInputs()) return;
+
     const data = new FormData(event.currentTarget);
-    console.log({
-      name: data.get("name"),
-      lastName: data.get("lastName"),
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    const name = data.get("name");
+    const email = data.get("email");
+    const password = data.get("password");
+
+    try {
+      await registerUser(name, email, password); // Calls your Firestore logic
+      console.log("✅ User created successfully");
+      // Optionally redirect or show success UI
+    } catch (err) {
+      console.error("❌ Registration error:", err.message);
+      // Optionally show a snackbar or error UI
+    }
   };
 
   return (
@@ -135,6 +146,7 @@ export default function SignUp(props) {
             onSubmit={handleSubmit}
             sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
+            {/* SIGN UP FORM */}
             <FormControl>
               <FormLabel htmlFor="name">Full name</FormLabel>
               <TextField
@@ -180,22 +192,22 @@ export default function SignUp(props) {
                 color={passwordError ? "error" : "primary"}
               />
             </FormControl>
+
+            {/* Update Checkbox & Sign Up Button */}
             <FormControlLabel
               control={<Checkbox value="allowExtraEmails" color="primary" />}
               label="I want to receive updates via email."
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              onClick={validateInputs}
-            >
+            <Button type="submit" fullWidth variant="contained">
               Sign up
             </Button>
           </Box>
+
           <Divider>
             <Typography sx={{ color: "text.secondary" }}>or</Typography>
           </Divider>
+
+          {/* Sign Up w/ Google or Facebook  */}
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Button
               fullWidth
@@ -213,6 +225,8 @@ export default function SignUp(props) {
             >
               Sign up with Facebook
             </Button>
+
+            {/* Return to Login Screen */}
             <Typography sx={{ textAlign: "center" }}>
               Already have an account?{" "}
               <Link

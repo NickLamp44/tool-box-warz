@@ -136,6 +136,7 @@ export default function SignIn(props) {
               gap: 2,
             }}
           >
+            {/* Login Form  */}
             <FormControl>
               <FormLabel htmlFor="email">Email</FormLabel>
               <TextField
@@ -193,6 +194,8 @@ export default function SignIn(props) {
               Forgot your password?
             </Link>
           </Box>
+
+          {/* Sign In w/ Google or Facebook  */}
           <Divider>or</Divider>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Button
@@ -211,6 +214,8 @@ export default function SignIn(props) {
             >
               Sign in with Facebook
             </Button>
+
+            {/* Return to Sign Up Screen */}
             <Typography sx={{ textAlign: "center" }}>
               Don&apos;t have an account?{" "}
               <Link

@@ -23,10 +23,6 @@ export default function UserAccess() {
         <Col md={6}>
           <Card>
             <Card.Body>
-              <div className="text-center mb-3">
-                <h4>{isLogin ? "Login" : "Create an Account"}</h4>
-              </div>
-
               {/* Toggle between Login and SignUp */}
               {isLogin ? (
                 <Login onLoggedIn={(user, token) => console.log(user, token)} />
