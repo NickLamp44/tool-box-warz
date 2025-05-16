@@ -5,6 +5,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // Screens & Components
 import Navbar from "./components/navigation/navBar";
 import Footer from "./components/generic/footer";
+import SignIn from "./components/uam/login";
+import SignUp from "./components/uam/signup";
+import BlogArticle from "./components/blog/blog";
+import ShowCASEArticle from "./components/blog/showCase";
 
 import Blogs from "./screens/blogs";
 import ShowCASE from "./screens/showCase";
@@ -25,13 +29,26 @@ function App() {
 
         <main className="py-4">
           <Routes>
+            {/* Home Page  */}
             <Route path="/" element={<h1>Welcome to Tool Box Warz</h1>} />
+
+            {/* Blogs + showCASE */}
             <Route path="/blogs" element={<Blogs />} />
-            <Route path="/auth" element={<UserAccess />} />
-            <Route path="/showCASE" element={<ShowCASE />} />
+            <Route path="/blog" element={<BlogArticle />} />
+            <Route path="/showcases" element={<ShowCASE />} />
+            <Route path="/showcase" element={<ShowCASEArticle />} />
+
+            {/* Merch */}
             <Route path="/shop" element={<Merch />} />
             <Route path="/checkout" element={<Checkout />} />
+
+            {/* Acess Management */}
             <Route path="/uam" element={<UserAccess />} />
+            <Route path="/auth" element={<UserAccess />} />
+            <Route path="/signIn" element={<SignIn />} />
+            <Route path="/signUp" element={<SignUp />} />
+
+            {/* Profile */}
             <Route path="/profile" element={<Profile />} />
           </Routes>
         </main>

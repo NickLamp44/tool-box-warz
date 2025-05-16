@@ -11,10 +11,10 @@ import {
   Grid,
   Box,
 } from "@mui/material";
-import BlogCard from "../components/blog/blogCard";
+import ShowCASECard from "../components/blog/showCaseCard";
 
-// Mock blog data
-const mockBlogs = [
+// Mock showCASE data
+const mockShowCASES = [
   {
     id: "pro-tool-case",
     title: "Pro Mountain Biker’s Tool Case",
@@ -60,10 +60,12 @@ const categories = ["all", "Pro", "DH", "TBOY"];
 export default function ShowCASE() {
   const [activeCategory, setActiveCategory] = useState("all");
 
-  const filteredBlogs =
+  const filteredShowCASES =
     activeCategory === "all"
-      ? mockBlogs
-      : mockBlogs.filter((blog) => blog.category === activeCategory);
+      ? mockShowCASES
+      : mockShowCASES.filter(
+          (showCASE) => showCASE.category === activeCategory
+        );
 
   return (
     <Container sx={{ my: 6 }}>
@@ -96,11 +98,11 @@ export default function ShowCASE() {
         </ButtonGroup>
       </Box>
 
-      {/* ShowCase Cards Grid */}
+      {/* showCASE Cards Grid */}
       <Grid container spacing={4}>
-        {filteredBlogs.map((blog) => (
-          <Grid item key={blog.id} xs={12} sm={6} md={4}>
-            <BlogCard blog={blog} />
+        {filteredShowCASES.map((showCASE) => (
+          <Grid item key={showCASE.id} xs={12} sm={6} md={4}>
+            <ShowCASECard showCASE={showCASE} />
           </Grid>
         ))}
       </Grid>

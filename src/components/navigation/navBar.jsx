@@ -19,7 +19,7 @@ import AdbIcon from "@mui/icons-material/Adb";
 
 const pages = [
   { label: "Blogs", path: "/blogs" },
-  { label: "ShowCase", path: "/showcase" },
+  { label: "ShowCase", path: "/showcases" },
   { label: "Shop", path: "/shop" },
 ];
 

@@ -1,24 +1,58 @@
-// Frameworks & Libraries
+import * as React from "react";
+import { Link } from "react-router-dom";
+import Card from "@mui/material/Card";
+import CardHeader from "@mui/material/CardHeader";
+import CardMedia from "@mui/material/CardMedia";
+import CardContent from "@mui/material/CardContent";
+import CardActions from "@mui/material/CardActions";
+import Avatar from "@mui/material/Avatar";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import { red } from "@mui/material/colors";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import ShareIcon from "@mui/icons-material/Share";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-// Pages & Components
-
-// Styling
-import React, { useState } from "react";
-import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-
-export default function showCaseCard({}) {
+export default function ShowCASECard() {
   return (
-    <Card style={{ width: "18rem" }}>
-      <Card.Img variant="top" src="holder.js/100px180" />
-      <Card.Body>
-        <Card.Title>ShowCASE Card Title</Card.Title>
-        <Card.Text>
-          Some quick example text to build on the card title and make up the
-          bulk of the card's content.
-        </Card.Text>
-        <Button variant="primary">Go somewhere</Button>
-      </Card.Body>
-    </Card>
+    <Link to="/showcase" style={{ textDecoration: "none" }}>
+      <Card sx={{ maxWidth: 345, cursor: "pointer" }}>
+        <CardHeader
+          avatar={
+            <Avatar sx={{ bgcolor: red[500] }} aria-label="Author Avatar">
+              NL
+            </Avatar>
+          }
+          action={
+            <IconButton aria-label="settings">
+              <MoreVertIcon />
+            </IconButton>
+          }
+          title="Essential Mountain Biker Tool Case"
+          subheader="September 14, 2025"
+        />
+        <CardMedia
+          component="img"
+          height="194"
+          image="/path-to-img.jpg"
+          alt="Toolbox Hero"
+        />
+        <CardContent>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            Having the right set of tools makes getting the job done much easier
+            and a lot of the time safer. In this article, we are going to be
+            taking a close look at Max Morgan’s tool box...
+          </Typography>
+        </CardContent>
+        <CardActions disableSpacing>
+          <IconButton aria-label="add to favorites">
+            <FavoriteIcon />
+          </IconButton>
+          <IconButton aria-label="share">
+            <ShareIcon />
+          </IconButton>
+        </CardActions>
+      </Card>
+    </Link>
   );
 }
