@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import {
   Card,
   CardHeader,
@@ -23,6 +24,7 @@ export default function MerchCard({ merch }) {
           image={merch.image}
           alt={merch.title}
         />
+
         <CardActions disableSpacing>
           <IconButton aria-label="QuickShop" onClick={() => setOpen(true)}>
             🛍️
@@ -39,3 +41,21 @@ export default function MerchCard({ merch }) {
     </>
   );
 }
+
+MerchCard.propTypes = {
+  merch: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    Creater_ID: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    ImagePath: PropTypes.string.isRequired,
+    Price: PropTypes.string.isRequired,
+    sizes: PropTypes.string.isRequired,
+    category: PropTypes.string.isRequired,
+    inStock: PropTypes.boolean.isRequired,
+  }),
+  userId: PropTypes.string.isRequired,
+  token: PropTypes.string.isRequired,
+};
+
+// Include for merch props what sizes & colors are available

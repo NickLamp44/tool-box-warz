@@ -84,11 +84,34 @@ export default function Navbar() {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar
+      position="static"
+      sx={{
+        height: "100px",
+        backgroundImage: `linear-gradient(to left, #584d4d 40%, rgba(88, 77, 77, 0)), url('/Img/logos/camo.avif')`,
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+        overflow: "visible", // allow logo overflow
+      }}
+    >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           {/* Logo - Large screen */}
-          <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+          <Box
+            component="img"
+            src="/Img/logos/LeTourDeToolBox.png"
+            alt="ToolBoxWarz Logo"
+            sx={{
+              height: 250,
+              position: "absolute",
+              top: "-140px", // move it up
+              left: "10px",
+              display: { xs: "none", md: "flex" },
+              zIndex: 1,
+              pointerEvents: "none", // prevent click blocking
+            }}
+          />
           <Typography
             variant="h6"
             noWrap
@@ -143,7 +166,12 @@ export default function Navbar() {
           </Box>
 
           {/* Logo - Small screen */}
-          <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+          <Box
+            component="img"
+            src="/Img/logos/LeTourDeToolBox.png"
+            alt="ToolBoxWarz Logo"
+            sx={{ height: 40, mr: 1, display: { xs: "flex", md: "none" } }}
+          />
           <Typography
             variant="h5"
             noWrap

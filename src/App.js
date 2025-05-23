@@ -10,6 +10,7 @@ import SignUp from "./components/uam/signup";
 import BlogArticle from "./components/blog/blog";
 import ShowCASEArticle from "./components/blog/showCase";
 
+import Home from "./screens/home";
 import Blogs from "./screens/blogs";
 import ShowCASE from "./screens/showCase";
 import Merch from "./screens/merch";
@@ -30,7 +31,7 @@ function App() {
         <main className="py-4">
           <Routes>
             {/* Home Page  */}
-            <Route path="/" element={<h1>Welcome to Tool Box Warz</h1>} />
+            <Route path="/" element={<Home />} />
 
             {/* Blogs + showCASE */}
             <Route path="/blogs" element={<Blogs />} />

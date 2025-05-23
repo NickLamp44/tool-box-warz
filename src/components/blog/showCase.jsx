@@ -15,27 +15,80 @@ export default function ShowCASEArticle() {
   return (
     <Container className="mt-5">
       {/* showCASE Hero */}
-      <section className="mb-4 text-center">
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .hero-title {
+            font-size: 1.75rem !important;
+          }
+          .hero-subtitle {
+            font-size: 1rem !important;
+          }
+          .hero-date {
+            font-size: 0.9rem !important;
+          }
+        }
+
+        .fade-in {
+          opacity: 0;
+          animation: fadeIn 1s ease-in-out forwards;
+          animation-delay: 0.3s;
+        }
+
+        @keyframes fadeIn {
+          to {
+            opacity: 1;
+          }
+        }
+      `}</style>
+
+      <section className="position-relative text-center mb-4">
+        {/* Background Image */}
         <img
-          src="/path-to-hero.jpg"
-          alt="showCASE hero"
-          className="img-fluid rounded mb-3"
+          src="/Img/basicBlog/ProToolBoxCheck_1.webp"
+          alt="Blog hero"
+          className="img-fluid w-100 rounded"
+          style={{ height: "400px", objectFit: "cover" }}
         />
-        <Typography variant="h3" component="h1" gutterBottom>
-          showCASETITLE
-        </Typography>
-        <Typography variant="subtitle1">By showCASEAuthor</Typography>
-        <Typography variant="subtitle2" className="text-muted">
-          showCASEPblshDate
-        </Typography>
-        <div className="mt-2">
-          <Badge bg="secondary" className="me-1">
-            DIY
-          </Badge>
-          <Badge bg="secondary" className="me-1">
-            Pro
-          </Badge>
-          <Badge bg="secondary">Racing</Badge>
+
+        {/* Dark Overlay */}
+        <div
+          className="position-absolute top-0 start-0 w-100 h-100"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            borderRadius: "0.375rem",
+          }}
+        ></div>
+
+        {/* Centered Content */}
+        <div
+          className="position-absolute top-50 start-50 translate-middle text-white fade-in"
+          style={{ zIndex: 2 }}
+        >
+          <Typography
+            variant="h3"
+            component="h1"
+            gutterBottom
+            className="hero-title"
+          >
+            ShowCASE Title
+          </Typography>
+          <Typography variant="subtitle1" className="hero-subtitle">
+            By ShowCASEAuthor
+          </Typography>
+          <Typography variant="subtitle2" className="text-light hero-date">
+            ShowCASEPblshDate
+          </Typography>
+          <div className="mt-2">
+            <Badge bg="light" text="dark" className="me-1">
+              DIY
+            </Badge>
+            <Badge bg="light" text="dark" className="me-1">
+              Pro
+            </Badge>
+            <Badge bg="light" text="dark">
+              Racing
+            </Badge>
+          </div>
         </div>
       </section>
 
