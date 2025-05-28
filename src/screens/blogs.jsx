@@ -1,5 +1,4 @@
 // src/pages/Blogs.jsx
-
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -10,68 +9,39 @@ import {
   Box,
 } from "@mui/material";
 import BlogCard from "../components/blog/blogCard";
-// import { db } from "../firebase"; // ← future Firestore setup
-// import { collection, getDocs } from "firebase/firestore";
-
-// Mock blog data
-const mockBlogs = [
-  {
-    id: "blog",
-    title: "Pro Mountain Biker’s Tool Case",
-    author: "Max Morgan",
-    date: "May 12, 2024",
-    category: "tools",
-    image: "/Img/basicShowCASE/john-hall-8.jpg",
-    previewText:
-      "Check out the 9 essential tools Max Morgan carries to every DH race.",
-  },
-  {
-    id: "video-setup",
-    title: "Setting Up Suspension - Video Guide",
-    author: "Tech Team",
-    date: "April 5, 2024",
-    category: "video",
-    image: "/Img/basicShowCASE/G_Sides89.jpg",
-    previewText:
-      "Watch our guide to setting sag, rebound, and pressure like a pro.",
-  },
-  {
-    id: "brake-bleed-guide",
-    title: "How to Bleed Disc Brakes",
-    author: "Alex Wrench",
-    date: "March 22, 2024",
-    category: "maintenance",
-    image: "/Img/basicShowCASE/M3Gravy5.jpg",
-    previewText: "Step-by-step tips to get your brakes sharp again.",
-  },
-  {
-    id: "pedal-upgrades",
-    title: "Top 5 Pedals for Trail Riders",
-    author: "Riley Knob",
-    date: "May 1, 2024",
-    category: "tools",
-    image: "/Img/basicShowCASE/PeterJamisonThumbNail.jpg",
-    previewText: "Looking for better grip and durability? Start here.",
-  },
-];
+import { db } from "../services/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 const categories = ["all", "tools", "video", "maintenance"];
 
 export default function Blogs() {
   const [activeCategory, setActiveCategory] = useState("all");
-  const [blogs, setBlogs] = useState(mockBlogs);
+  const [blogs, setBlogs] = useState([]);
 
-  // useEffect(() => {
-  //   const fetchBlogs = async () => {
-  //     const querySnapshot = await getDocs(collection(db, "blogs"));
-  //     const fetchedBlogs = querySnapshot.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data(),
-  //     }));
-  //     setBlogs(fetchedBlogs);
-  //   };
-  //   fetchBlogs();
-  // }, []);
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "blogs"));
+        const fetched = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            title: data.title,
+            author: data.authorName,
+            date: data.publishedDate,
+            category: data.tags?.[0] || "tools",
+            image: data.heroImage?.src,
+            previewText: data.subtitle,
+          };
+        });
+        setBlogs(fetched);
+      } catch (err) {
+        console.error("🔥 Failed to fetch blogs:", err);
+      }
+    };
+
+    fetchBlogs();
+  }, []);
 
   const filteredBlogs =
     activeCategory === "all"

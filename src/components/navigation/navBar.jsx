@@ -15,7 +15,6 @@ import MenuItem from "@mui/material/MenuItem";
 import { styled, alpha } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
-import AdbIcon from "@mui/icons-material/Adb";
 
 const pages = [
   { label: "Blogs", path: "/blogs" },
@@ -92,43 +91,55 @@ export default function Navbar() {
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
-        overflow: "visible", // allow logo overflow
+        overflow: "visible",
       }}
     >
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          {/* Logo - Large screen */}
+        <Toolbar
+          disableGutters
+          sx={{
+            minHeight: "100px",
+            alignItems: "center",
+            px: 2,
+          }}
+        >
+          {/* Logo + Brand Text (Desktop) */}
           <Box
-            component="img"
-            src="/Img/logos/LeTourDeToolBox.png"
-            alt="ToolBoxWarz Logo"
             sx={{
-              height: 250,
-              position: "absolute",
-              top: "-140px", // move it up
-              left: "10px",
               display: { xs: "none", md: "flex" },
-              zIndex: 1,
-              pointerEvents: "none", // prevent click blocking
-            }}
-          />
-          <Typography
-            variant="h6"
-            noWrap
-            component={Link}
-            to="/"
-            sx={{
+              alignItems: "center",
               mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
             }}
           >
-            ToolBoxWarz
-          </Typography>
+            <Box
+              component="img"
+              src="/Img/logos/LeTourDeToolBox.png"
+              alt="ToolBoxWarz Logo"
+              sx={{
+                height: 125,
+                width: "auto",
+                mr: 1,
+                display: "block",
+              }}
+            />
+            <Typography
+              variant="h6"
+              noWrap
+              component={Link}
+              to="/"
+              sx={{
+                fontFamily: "monospace",
+                fontWeight: 700,
+                letterSpacing: ".3rem",
+                color: "inherit",
+                textDecoration: "none",
+              }}
+            >
+              ToolBoxWarz
+            </Typography>
+          </Box>
+
+          {/* rest of the toolbar layout */}
 
           {/* Mobile Menu Icon */}
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
@@ -219,11 +230,14 @@ export default function Navbar() {
 
           {/* Avatar */}
           <Box sx={{ flexGrow: 0 }}>
+            {/* Onclick open settings */}
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
               </IconButton>
             </Tooltip>
+
+            {/* Settings Menu */}
             <Menu
               sx={{ mt: "45px" }}
               id="menu-appbar"

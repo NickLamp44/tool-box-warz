@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import {
   Card,
@@ -6,25 +6,36 @@ import {
   CardMedia,
   CardActions,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import QuickShop from "./merchQuickShop";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../services/firebase";
 
 export default function MerchCard({ merch }) {
   const [open, setOpen] = useState(false);
 
+  if (!merch) return <CircularProgress />;
+
+  const imagePath = merch.image.startsWith("/")
+    ? merch.image
+    : `/${merch.image}`;
+
   return (
     <>
       <Card sx={{ maxWidth: 345 }}>
-        <CardHeader title={merch.title} subheader={merch.price} />
+        <CardHeader
+          title={merch.title}
+          subheader={`$${parseFloat(merch.price).toFixed(2)}`}
+        />
         <CardMedia
           component="img"
           height="194"
-          image={merch.image}
+          image={imagePath}
           alt={merch.title}
         />
-
         <CardActions disableSpacing>
           <IconButton aria-label="QuickShop" onClick={() => setOpen(true)}>
             🛍️
@@ -43,19 +54,5 @@ export default function MerchCard({ merch }) {
 }
 
 MerchCard.propTypes = {
-  merch: PropTypes.shape({
-    _id: PropTypes.string.isRequired,
-    Creater_ID: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-    ImagePath: PropTypes.string.isRequired,
-    Price: PropTypes.string.isRequired,
-    sizes: PropTypes.string.isRequired,
-    category: PropTypes.string.isRequired,
-    inStock: PropTypes.boolean.isRequired,
-  }),
-  userId: PropTypes.string.isRequired,
-  token: PropTypes.string.isRequired,
+  merch: PropTypes.object.isRequired,
 };
-
-// Include for merch props what sizes & colors are available

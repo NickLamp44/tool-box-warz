@@ -1,5 +1,4 @@
-// Merch Screen: Filters, sort, import mock merch from db
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -11,55 +10,46 @@ import {
   Select,
   FormControl,
   InputLabel,
+  CircularProgress,
 } from "@mui/material";
 import MerchCard from "../components/store/merchCard";
-
-const mockMerch = [
-  {
-    id: "sku1",
-    title: "TBW Logo Tshirt",
-    category: "Shirt",
-    image: "https://via.placeholder.com/300x200",
-    price: "$19.99",
-  },
-  {
-    id: "sku2",
-    title: "TBW Logo Hoodie",
-    category: "Sweatshirt",
-    image: "https://via.placeholder.com/300x200",
-    price: "$29.99",
-  },
-  {
-    id: "sku3",
-    title: "TBW Logo Hat",
-    category: "Headwear",
-    image: "https://via.placeholder.com/300x200",
-    price: "$15.99",
-  },
-  {
-    id: "sku4",
-    title: "TBW Logo Sticker",
-    category: "Accessories",
-    image: "https://via.placeholder.com/300x200",
-    price: "$1.99",
-  },
-];
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../services/firebase";
 
 const categories = ["all", "Shirt", "Sweatshirt", "Headwear", "Accessories"];
 
 export default function MerchScreen() {
+  const [allMerch, setAllMerch] = useState([]);
   const [activeCategory, setActiveCategory] = useState("all");
   const [sort, setSort] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const filteredMerch = mockMerch
+  useEffect(() => {
+    const fetchMerch = async () => {
+      try {
+        const merchRef = collection(db, "merch");
+        const snapshot = await getDocs(merchRef);
+        const merchData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setAllMerch(merchData);
+      } catch (err) {
+        console.error("🔥 Error fetching merch:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMerch();
+  }, []);
+
+  const filteredMerch = allMerch
     .filter((item) =>
       activeCategory === "all" ? true : item.category === activeCategory
     )
     .sort((a, b) => {
-      const priceA = parseFloat(a.price.replace("$", ""));
-      const priceB = parseFloat(b.price.replace("$", ""));
-      if (sort === "asc") return priceA - priceB;
-      if (sort === "desc") return priceB - priceA;
+      if (sort === "asc") return a.price - b.price;
+      if (sort === "desc") return b.price - a.price;
       return 0;
     });
 
@@ -116,13 +106,17 @@ export default function MerchScreen() {
         </FormControl>
       </Box>
 
-      <Grid container spacing={4}>
-        {filteredMerch.map((item) => (
-          <Grid item key={item.id} xs={12} sm={6} md={4}>
-            <MerchCard merch={item} />
-          </Grid>
-        ))}
-      </Grid>
+      {loading ? (
+        <CircularProgress />
+      ) : (
+        <Grid container spacing={4}>
+          {filteredMerch.map((item) => (
+            <Grid item key={item.id} xs={12} sm={6} md={4}>
+              <MerchCard merch={item} />
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Container>
   );
 }

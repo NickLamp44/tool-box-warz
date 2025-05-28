@@ -1,8 +1,4 @@
 // Frameworks & Libraries
-
-// Pages & Components
-
-// Styling
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -18,11 +14,13 @@ import Typography from "@mui/material/Typography";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 
+// Pages & Components
 import AddressForm from "../components/store/addressForm";
 import Info from "../components/store/info";
 import InfoMobile from "../components/store/infoMobile";
 import PaymentForm from "../components/store/paymentForm";
 import Review from "../components/store/review";
+// Styling
 
 const steps = ["Shipping address", "Payment details", "Review your order"];
 function getStepContent(step) {

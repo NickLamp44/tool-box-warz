@@ -35,7 +35,7 @@ function App() {
 
             {/* Blogs + showCASE */}
             <Route path="/blogs" element={<Blogs />} />
-            <Route path="/blog" element={<BlogArticle />} />
+            <Route path="/blog/:blogId" element={<BlogArticle />} />
             <Route path="/showcases" element={<ShowCASE />} />
             <Route path="/showcase" element={<ShowCASEArticle />} />
 
