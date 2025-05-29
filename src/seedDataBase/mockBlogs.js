@@ -1,133 +1,197 @@
-// /seedBlog.js
-
 const mockBlogs = [
   {
-    id: "pro-toolbox-checklist",
-    title: "BlogTitle",
+    id: "8cRTNx7xOe5PZpyK3InQ",
+    title: "Why I Think the Maven Base is Srams BEST Enduro Brake",
     subtitle:
-      "From Weekend Warrior to Pro Factory Rider. Here are the 9 tools you can’t live without when between the tape",
-    authorName: "BlogAuthor",
-    publishedDate: "2024-11-03",
-    tags: ["DIY", "Pro", "Racing"],
+      "Did Sram just make their base model Mavens their best for everything?!",
+    authorName: "Liam Woods",
+    publishedDate: "2024-5-10",
+    tags: ["Brakes", "Sram", "Review"],
     heroImage: {
-      src: "/Img/basicBlog/ProToolBoxCheck_1.webp",
+      src: "/Img/basicBlog/MavenReview/Sram_Maven_Base_-_2.webp",
       alt: "Blog hero",
     },
     sections: [
-      // Section: Intro
       {
         type: "intro",
         paragraphs: [
-          "Having the right set of tools makes getting the job done much easier and alot of the time safer. In this article, we are going to be taking a close look at Max Morgan’s tool box that he carries from race to race. Inside you will find just about everything you need to get through a race weekend, from your standard set of hex keys to hub bearing press tools. Check out which tools are his favorites and which ones he can't go without!",
-        ],
-      },
-
-      // Section: The Case
-      {
-        type: "section",
-        heading: "The Case",
-        paragraphs: [
-          "This hard case is a Pedro’s Master Tool Kit Box. Pedro’s offers their Master Box both empty and as a full kit. I started with an empty box—that way I could fill the box with exactly the tools I wanted to use. Having a hard case that seals itself watertight keeps everything nice and safe. There are certainly times when the toolbox gets thrown in the back of the truck and gets beaten around on the way to the mountain. I’ve used this same box for the last three to four years with no problems. It has been all the way around the world multiple times, and so having this bulletproof case from Pedro’s has made all the difference keeping my expensive tools inside safe. There are other brands out there like Pelican that make quality hard cases that can be used for just about anything. I went with the Pedro’s case at the end of the day because the pallets that came already installed made laying my tools out easy without having to do much customization.",
+          {
+            type: "text",
+            content:
+              "When SRAM released the Maven lineup, most people immediately gravitated toward the top-tier Ultimate model for its full factory treatment, sleek carbon levers, and premium feel. But after three months on the Maven Base—including back-to-back riding in Tasmania and New Zealand—I think SRAM may have quietly built the Goldilocks brake of their entire lineup.",
+          },
+          {
+            type: "text",
+            content:
+              "So here’s the question I kept asking myself on trail: Can a base model really be the best version of a product?",
+          },
         ],
         images: [
           {
-            src: "/Img/basicBlog/ProToolBoxCheck_2.webp",
-            alt: "Pedros Master Toolkit Case",
+            src: "/Img/basicBlog/MavenReview/Sram_Maven_Base_-_2.webp",
+            alt: "Sram Maven Base",
           },
         ],
       },
-
-      // Section: The Layers
       {
         type: "section",
-        heading: "The Layers",
+        heading: "Specs & Key Differences",
         paragraphs: [
-          "Just like the hex L-key set from Wera...",
-          "All the pretty colors help you find the size you need...",
+          {
+            type: "text",
+            content:
+              "On paper, the Maven Base and Maven Ultimate share the same overall structure, but the real story lies in the details that shape how these brakes feel and perform on trail. There are two core differences—lever mechanism and caliper piston sizing—that dramatically affect power delivery and modulation. And for most riders, these differences tilt the scale toward the Base model. The first major difference is in the lever design. The Maven Base uses SRAM’s Direct Link lever architecture, which creates a more linear power curve throughout the lever stroke. That means the brake builds power in a smooth and predictable way—no surprises, no spikes. In contrast, the Maven Ultimate uses the Swing Link, a design that ramps up power more aggressively as you pull deeper into the lever stroke. Some riders prefer that progressive feel, especially on steep terrain or eMTBs, but for me, it came on too fast—especially on a lighter enduro bike.",
+          },
         ],
         images: [
           {
-            src: "/Img/basicBlog/ProToolBoxCheck_3.webp",
-            alt: "Main Lid Layer",
-          },
-          {
-            src: "/Img/basicBlog/ProToolBoxCheck_4.webp",
-            alt: "Main Bottom Layer",
+            src: "/Img/basicBlog/MavenReview/Sram_Maven_Base_-_3.webp",
+            alt: "Comparing Maven Base & Ulitmate Levers ",
           },
         ],
       },
-
-      // Section: The Tools You Cant Go Without
       {
         type: "section",
-        heading: "Tools You Cannot Go Without",
         paragraphs: [
-          "Wera Hex Plus Allen Keys - Everyone needs a set of allen keys to work on their bike. No matter if you are working in a professional bike shop, doing regular bike maintenance at home in the garage, or have a travel tool case like this one, you will definitely be using a set of L-shape allen keys. I choose to use the Wera Hex Plus allen keys because they are made from high quality materials, there Hex Plus design grabs bolt heads nicely without damaging them, and the color coordination makes picking up each size second nature. Over time you just know the orange hex key is a 5mm. Instead for picking up three wrenches and trying to read which size is which, whenever you need a 5mm you just pick up the orange one without thinking about it.",
-          "Wera Torx L-Key Set - Just like the hex L-key set from Wera, I decided to get the same style for Torx as well. This set includes a T8 all the way up to T40. Although not all of these sizes are commonly seen on mountain bikes, I like to keep them in the tool box anyway. They are perfect for installing brake rotor bolts and removing brake bleed port screws. All the pretty colors help you find the size you need quick and easy.",
-          "Topeak SmartGauge D2 Digital Tire Pressure Gauge - I'm someone that checks tire pressure before every ride. The Topeak digital tire pressure gauge gets the same reading every time and is perfect for dialing in your tire pressure for different riding conditions. If you are someone that travels to go ride bikes or if you are getting a ride to the trail head with a buddy, it’s a good idea to bring your own tire pressure gauge. Your tires are your bike’s first form of suspension and so riding with the ideal tire pressure can make all the difference on the trail.",
+          {
+            type: "text",
+            content:
+              "Next is the caliper piston setup. The Maven Base runs four equal 18mm pistons, while the Maven Ultimate steps it up with two 18mm and two larger 19.5mm pistons. This gives the Ultimate more peak power, but it also makes the brake feel more “on-off.” The Base, on the other hand, hits the sweet spot: more powerful than the outgoing Code Ultimate (which used 15mm and 16mm pistons), but without the sometimes overwhelming bite of the full-size Maven Ultimate.",
+          },
+          {
+            type: "text",
+            content:
+              "Both brakes use SRAM’s new Maxima Mineral Brake Fluid, and both are designed with heat management and durability in mind. I’ve been running the Maven Base with 200mm HS2 rotors and sintered pads, and even on massive descents in Tasmania and New Zealand, they’ve been totally unfazed. No fade. No overheat. Just consistent, confidence-inspiring braking.",
+          },
         ],
         images: [
           {
-            src: "/Img/basicBlog/ProToolBoxCheck_15.webp",
-            alt: "Hex Keys",
-          },
-          {
-            src: "/Img/basicBlog/ProToolBoxCheck_16.webp",
-            alt: "Torx Set",
-          },
-          {
-            src: "/Img/basicBlog/ProToolBoxCheck_13.webp",
-            alt: "Pressure Gauge",
+            src: "/Img/basicBlog/MavenReview/Sram_Maven_Base_-_4.webp",
+            alt: "Comparing Maven Base & Ulitmate Calipers",
           },
         ],
       },
-
-      // Section: What are Some Less Obvious
       {
         type: "section",
-        heading: "What are some of the less obvious tools?",
-        paragraphs: [
-          "Metal Tape Measurer – Believe it or not, I use this small metal ruler almost as much as any tool in my toolbox. It’s perfect for measuring and setting sag, and great for matching exactly where all of your controls are from one side of the handlebars to the other. Whenever I pull the forks off to do a lower leg service, having the metal measuring tape is handy when you need to slide those forks back to exactly the same height in the crowns. If you are someone very particular with your bike setup, you will find yourself grabbing this tape measurer more times than not.",
-          "Torque Wrench- Carrying a torque wrench in your tool box may seem more obvious than not, but forever I was the rider and mechanic that didn't think I really needed a torque wrench. And yes, you can get away without one and get things close by hand.  Now that I have and use a torque wrench on a regular basis, I wonder what took me so long to get on the program. I carry two different torque wrenches from Park Tool; the Park Tool TW 5.2 and the Park Tool TW 6.2. The 5.2 is 9 inches in length, uses a 3/8” drive, and what get used the most with an adjustable torque range of 2-14 N*m. The 6.2 is just over 14 inches long, also uses a 3/8” drive, and has an adjustable torque range of 10-50 N*m. The larger TW-6.2 comes in handy when torquing down both the bottom bracket and crankset. Using any kind of torque wrench, you can make sure every bolt is torqued to the correct spec every time! ",
-          "Bearing Press And Removal Tools- Specific bearing press tools are always handy to have, and when you don’t have them, you can waist a lot of time fighting a bearing to come out. Having this Industry Nine wheel bearing removal and press kit makes swapping hub bearings a breeze. I don’t need to change hub bearings very often, but when I do, I wouldn’t want to give it a go without these tools. Making sure bearings are pressed in securely and straight is exactly what you want. Some of these specialty tools are cool to keep in your tool box!",
-          "Wera Hex Head Screwdrivers - Using multi tools or tools that can fit a variety of different fasteners is handy most of the time. Other times, it is certainly nice to have a tool that serves only purpose. Because I am constantly using 4mm, 5mm, and 6mm allen keys, I decided to get a few dedicated hex head screwdrivers from Wera. I also have a T25 in the same screwdriver handle that I use all the time. These are very handy and make quick work when building or assembling a bike before bolts all get torqued to spec. ",
-        ],
-        images: [
+        heading: "Quick Spec & Difference Highlights",
+        bullets: [
           {
-            src: "/Img/basicBlog/ProToolBoxCheck_17.webp",
-            alt: "Metal Tape Measurer",
+            title: "Lever Design",
+            items: [
+              "Maven Base: Direct Link – linear power, excellent modulation",
+              "Maven Ultimate: Swing Link – progressive ramp-up, aggressive bite",
+            ],
           },
           {
-            src: "/Img/basicBlog/ProToolBoxCheck_8.webp",
-            alt: "ParkTool Torque Wrench",
+            title: "Caliper Piston Size",
+            items: [
+              "Maven Base: 4x 18mm pistons – great control, still very powerful",
+              "Maven Ultimate: 2x 18mm + 2x 19.5mm pistons – max power, more abrupt",
+            ],
           },
           {
-            src: "/Img/basicBlog/ProToolBoxCheck_9.webp",
-            alt: "Bearing Press",
+            title: "Lever Construction",
+            items: [
+              "Base: Alloy blade, simpler finish, standard hardware",
+              "Ultimate: Carbon blade, premium hardware & finish",
+            ],
           },
           {
-            src: "/Img/basicBlog/ProToolBoxCheck_11.webp",
-            alt: "Hex Screwdrivers",
+            title: "Fluid & Compatibility",
+            items: [
+              "Both: SRAM Maxima Mineral Oil, new mineral-specific system",
+              "Compatible with all Maven calipers",
+            ],
+          },
+          {
+            title: "MSRP",
+            items: [
+              "Maven Base: $185 per brake",
+              "Maven Ultimate: $300 per brake",
+            ],
           },
         ],
       },
-
-      // Section: More Essentials
       {
         type: "section",
-        heading: "More Essentials",
+        heading: "Setup: Easy, Familiar, and SRAM-Specific",
         paragraphs: [
-          "Kinpex86 03 180 7 in Pliers- The Knipex wrench pliers are one of those tools that replaces ten others. These pliers are great because the clamping jaws always close parallel to each other, making it easy to clamp down on square surfaces. I use the Knipex pliers most of the time as a wrench on a cassette tool, servicing brake lines, and even straightening dents in rims. The 7 inch pliers are great because they are small enough to be lightweight and easy to work with, but they are also long enough to torque something down if needed.",
-          "Wera 1/4 Drive Zyklop Speed Ratchet– This Wera 1/4” drive socket wrench has always been one of my favorite tools to use because it makes things go much faster. At a quick glance, the Wera ratchet looks just the same as a conventional ratchet, but with the swivel head feature, the can spin the head of the ratchet around and use it as a ratcheting screwdriver as well. I have a range of socket bits that are common for my bike and find myself grabbing this tool most of the time.",
+          {
+            type: "richText",
+            content: [
+              {
+                type: "text",
+                content:
+                  "If you’ve bled any SRAM brake before, the Maven Base will feel like second nature. The process is nearly identical to the Code or Level bleed, with one key update: you’ll want to finish with a piston massage—a new addition SRAM recommends for their Maven bleed procedure. See our ",
+              },
+              {
+                type: "link",
+                href: "https://www.worldwidecyclery.com/blogs/worldwide-cyclery-blog/sram-maven-struggles-here-are-the-bleed-tips-nobody-is-talking-about",
+                content: "Bleed Tips",
+              },
+              {
+                type: "text",
+                content: ".",
+              },
+            ],
+          },
+        ],
+        bullets: [
+          {
+            title: "Set Up Tips",
+            items: [
+              "Follow traditional SRAM bleed Procedure",
+              "Add a piston massage at the end",
+              "Use Maxima Mineral Brake Fluid (SRAM Specific)",
+              "Use SRAMs mineral specific bleek kit",
+            ],
+          },
         ],
         images: [
           {
-            src: "/Img/basicBlog/ProToolBoxCheck_14.webp",
-            alt: "Knipex Pliers",
+            src: "/Img/basicBlog/MavenReview/Sram_Maven_Base_-_5.webp",
+            alt: "Sram Maven Base Lever",
+          },
+        ],
+      },
+      {
+        type: "section",
+        heading: "On-Trail Performance: The Sweet Spot of Power + Modulation",
+        paragraphs: [
+          {
+            type: "text",
+            content:
+              "After three months of riding the Maven Base across all sorts of terrain—steep bike park laps, long backcountry descents, even high-speed alpine days—I’ve never once felt like I needed more braking power. And I’m not a heavy rider.",
           },
           {
-            src: "/Img/basicBlog/ProToolBoxCheck_12.webp",
-            alt: "Ratchet Tool",
+            type: "text",
+            content:
+              "Paired with 200mm HS2 rotors and sintered pads, these brakes offer what I’d call “calculated power”: strong initial bite with consistent delivery through the lever pull. There’s no sudden surge, no guessing when the power kicks in—it’s all there, from top to bottom. Even on massive descents in Tasmania and New Zealand, I experienced zero brake fade and always felt in control.",
+          },
+        ],
+        images: [
+          {
+            src: "/Img/basicBlog/MavenReview/Sram_Maven_Base_-_6.webp",
+            alt: "FrameWorks Enduro Test Mule",
+          },
+          {
+            src: "/Img/basicBlog/MavenReview/Sram_Maven_Base_-_7.webp",
+            alt: "SRAM Maven Base Lever",
+          },
+          {
+            src: "/Img/basicBlog/MavenReview/Sram_Maven_Base_-_8.webp",
+            alt: "SRAM Maven Base Caliper",
+          },
+        ],
+      },
+      {
+        type: "section",
+        heading: "Whats the takeaway?",
+        paragraphs: [
+          {
+            type: "text",
+            content:
+              "The SRAM Maven Base gives you more usable power than Code, more control than Maven Ultimate, and a lever feel that’s easier to dial in. Unless you're regularly riding a 50lb e-bike or smashing park laps 7 days a week, I truly think this is the best trail/enduro brake SRAM has made. No carbon lever, no rainbow bolts, no fluff—just the best power-to-modulation ratio I’ve felt from a SRAM brake, ever. And all at a lower price than the flagship Ultimate. So… is the Maven Base SRAM’s goldilocks?  I’ve ridden everything they offer—and I’d say yes, every time.",
           },
         ],
       },

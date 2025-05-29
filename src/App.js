@@ -3,6 +3,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Screens & Components
+import WorkInProgressBanner from "./components/generic/workInProgress";
 import Navbar from "./components/navigation/navBar";
 import Footer from "./components/generic/footer";
 import SignIn from "./components/uam/login";
@@ -26,6 +27,7 @@ function App() {
   return (
     <Router>
       <div className="App">
+        <WorkInProgressBanner />
         <Navbar />
 
         <main className="py-4">

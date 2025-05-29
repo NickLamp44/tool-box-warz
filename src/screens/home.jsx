@@ -1,9 +1,6 @@
+// Frameworks & Libraries
 import React, { useEffect, useState } from "react";
-import HeroCarousel from "../components/blog/heroSlider";
-import BlogCard from "../components/blog/blogCard";
-import ShowCASECard from "../components/blog/showCaseCard";
-import MerchCard from "../components/store/merchCard";
-
+import { collection, getDocs } from "firebase/firestore";
 import {
   Container,
   Grid,
@@ -11,11 +8,42 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-
-import { collection, getDocs } from "firebase/firestore";
 import { db } from "../services/firebase";
 
+// Pages & Components
+import HeroCarousel from "../components/blog/heroSlider";
+import BlogCard from "../components/blog/blogCard";
+import ShowCASECard from "../components/blog/showCaseCard";
+import MerchCard from "../components/store/merchCard";
+
+// Styling
+
+// Home Screen Component
 export default function Home() {
+  //import Blogs
+  const [heroBlogs, setHeroBlogs] = useState([]);
+  const [loadingHeroBlogs, setLoadingHeroBlogs] = useState([]);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const blogRef = collection(db, "blogs");
+        const snapshot = await getDocs(blogRef);
+        const blogs = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setHeroBlogs(blogs.slice(0, 3));
+      } catch (err) {
+        console.error("❌ Error loading blogs:", err);
+      } finally {
+        setLoadingHeroBlogs(false);
+      }
+    };
+    fetchBlogs();
+  }, []);
+
+  // Import Merch Items
   const [merchItems, setMerchItems] = useState([]);
   const [loadingMerch, setLoadingMerch] = useState(true);
 
@@ -30,7 +58,7 @@ export default function Home() {
         }));
         setMerchItems(items.slice(0, 3)); // just latest 3
       } catch (err) {
-        console.error("🔥 Error loading merch:", err);
+        console.error("❌ Error loading merch:", err);
       } finally {
         setLoadingMerch(false);
       }
