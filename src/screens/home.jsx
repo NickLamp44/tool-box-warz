@@ -20,30 +20,55 @@ import MerchCard from "../components/store/merchCard";
 
 // Home Screen Component
 export default function Home() {
-  //import Blogs
-  const [heroBlogs, setHeroBlogs] = useState([]);
-  const [loadingHeroBlogs, setLoadingHeroBlogs] = useState([]);
+  //import ShowCASE for HomePage Spotlight
+  const [showCaseItems, setShowCaseItem] = useState([]);
+  const [loadingShowCase, setLoadingShowCase] = useState([true]);
+
+  useEffect(() => {
+    const fetchShowCase = async () => {
+      try {
+        const showCaseRef = collection(db, "showCase");
+        const snapshot = await getDocs(showCaseRef);
+
+        const items = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setShowCaseItem(items.slice(0, 3));
+      } catch (err) {
+        console.error("❌ Error loading ShowCASE:", err);
+      } finally {
+        setLoadingShowCase(false);
+      }
+    };
+    fetchShowCase();
+  }, []);
+
+  //import Blogs for HomePage Spotlight
+  const [blogItems, setBlogItem] = useState([]);
+  const [loadingBlogs, setLoadingBlogs] = useState([true]);
 
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
         const blogRef = collection(db, "blogs");
         const snapshot = await getDocs(blogRef);
-        const blogs = snapshot.docs.map((doc) => ({
+
+        const items = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        setHeroBlogs(blogs.slice(0, 3));
+        setBlogItem(items.slice(0, 3));
       } catch (err) {
-        console.error("❌ Error loading blogs:", err);
+        console.error("❌ Error loading Blogs:", err);
       } finally {
-        setLoadingHeroBlogs(false);
+        setLoadingBlogs(false);
       }
     };
     fetchBlogs();
   }, []);
 
-  // Import Merch Items
+  // Import Merch Items for HomePage Spotlight
   const [merchItems, setMerchItems] = useState([]);
   const [loadingMerch, setLoadingMerch] = useState(true);
 
@@ -77,40 +102,41 @@ export default function Home() {
       {/* Showcase Section */}
       <Container className="mb-5">
         <Typography variant="h4" gutterBottom align="center">
-          Featured Projects
+          Featured ShowCASE
         </Typography>
-        <Grid container spacing={3} justifyContent="center">
-          <Grid item xs={12} sm={6} md={4}>
-            <BlogCard />
+        {loadingShowCase ? (
+          <Box display="flex" justifyContent="center">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Grid container spacing={3}>
+            {showCaseItems.map((item) => (
+              <Grid item key={item.id} xs={12} sm={6} md={4}>
+                <ShowCASECard merch={item} />
+              </Grid>
+            ))}
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <ShowCASECard />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <ShowCASECard />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <BlogCard />
-          </Grid>
-        </Grid>
+        )}
       </Container>
 
       {/* Blog Section */}
       <Container className="mb-5">
         <Typography variant="h4" gutterBottom align="center">
-          Latest Blog Posts
+          Featured Blogs
         </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={4}>
-            <ShowCASECard />
+        {loadingBlogs ? (
+          <Box display="flex" justifyContent="center">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Grid container spacing={3}>
+            {blogItems.map((item) => (
+              <Grid item key={item.id} xs={12} sm={6} md={4}>
+                <BlogCard merch={item} />
+              </Grid>
+            ))}
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <ShowCASECard />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <ShowCASECard />
-          </Grid>
-        </Grid>
+        )}
       </Container>
 
       {/* Latest Merch Section */}

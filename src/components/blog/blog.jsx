@@ -2,11 +2,6 @@
 // options for video blogs
 
 // Frameworks & Libraries
-
-// Pages & Components
-
-// Styling
-
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
@@ -14,6 +9,9 @@ import { db } from "../../services/firebase";
 import { Container, Row, Col, Badge } from "react-bootstrap";
 import { Typography, Divider } from "@mui/material";
 import "bootstrap/dist/css/bootstrap.min.css";
+// Pages & Components
+import Comments from "./comments";
+// Styling
 
 export default function BlogArticle() {
   const { blogId } = useParams();
@@ -129,6 +127,9 @@ export default function BlogArticle() {
           {index === 0 && <Divider className="my-4" />}
         </section>
       ))}
+
+      <Divider className="my-4" />
+      <Comments blogId={blogId} />
     </Container>
   );
 }
