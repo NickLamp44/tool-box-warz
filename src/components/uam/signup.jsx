@@ -1,4 +1,11 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  registerUser,
+  signInWithGoogle,
+  signInWithFacebook,
+} from "../../services/firebaseAuth";
+
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
@@ -16,8 +23,6 @@ import { styled } from "@mui/material/styles";
 
 import { GoogleIcon, FacebookIcon } from "./customIcons";
 
-import { registerUser } from "../../services/firebaseAuth";
-
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -31,100 +36,85 @@ const Card = styled(MuiCard)(({ theme }) => ({
   [theme.breakpoints.up("sm")]: {
     width: "450px",
   },
-  ...theme.applyStyles("dark", {
+  ...theme.applyStyles?.("dark", {
     boxShadow:
       "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
   }),
 }));
 
 const SignUpContainer = styled(Stack)(({ theme }) => ({
-  height: "calc((1 - var(--template-frame-height, 0)) * 100dvh)",
-  minHeight: "100%",
+  minHeight: "100dvh",
+  overflowY: "auto",
   padding: theme.spacing(2),
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  background:
+    "radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))",
   [theme.breakpoints.up("sm")]: {
     padding: theme.spacing(4),
   },
-  "&::before": {
-    content: '""',
-    display: "block",
-    position: "absolute",
-    zIndex: -1,
-    inset: 0,
-    backgroundImage:
-      "radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))",
-    backgroundRepeat: "no-repeat",
-    ...theme.applyStyles("dark", {
-      backgroundImage:
-        "radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))",
-    }),
-  },
+  ...theme.applyStyles?.("dark", {
+    background:
+      "radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))",
+  }),
 }));
 
 export default function SignUp(props) {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [nameError, setNameError] = React.useState(false);
-  const [nameErrorMessage, setNameErrorMessage] = React.useState("");
+  const navigate = useNavigate();
+  const [firstName, setFirstName] = React.useState("");
+  const [lastName, setLastName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [userName, setUserName] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [birthDate, setBirthDate] = React.useState("");
+  const [homeTown, setHomeTown] = React.useState("");
 
-  const validateInputs = () => {
-    const email = document.getElementById("email");
-    const password = document.getElementById("password");
-    const name = document.getElementById("name");
+  const [errors, setErrors] = React.useState({});
 
-    let isValid = true;
-
-    // Reject sign up if Email is formatted incorrect
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage("Please enter a valid email address.");
-      isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage("");
+  const validate = () => {
+    const err = {};
+    if (!firstName || !lastName || !email || !userName || !password) {
+      err.form = "All required fields must be filled.";
     }
-
-    // Reject sign up if Password is formatted incorrect
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage("Password must be at least 6 characters long.");
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage("");
+    if (email && !/\S+@\S+\.\S+/.test(email)) {
+      err.email = "Please enter a valid email address.";
     }
-
-    //Reject sign up if Name is formatted incorrect
-    if (!name.value || name.value.length < 1) {
-      setNameError(true);
-      setNameErrorMessage("Name is required.");
-      isValid = false;
-    } else {
-      setNameError(false);
-      setNameErrorMessage("");
+    if (
+      password &&
+      (password.length < 6 ||
+        !/\d/.test(password) ||
+        !/[!@#$%^&*]/.test(password))
+    ) {
+      err.password =
+        "Password must be 6+ chars, include a number and special char.";
     }
-
-    return isValid;
+    if (birthDate && !/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) {
+      err.birthDate = "Use format YYYY-MM-DD.";
+    }
+    setErrors(err);
+    return Object.keys(err).length === 0;
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    if (!validateInputs()) return;
-
-    const data = new FormData(event.currentTarget);
-    const name = data.get("name");
-    const email = data.get("email");
-    const password = data.get("password");
+  const onHandleSignUp = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
 
     try {
-      await registerUser(name, email, password); // Calls your Firestore logic
-      console.log("✅ User created successfully");
-      // Optionally redirect or show success UI
-    } catch (err) {
-      console.error("❌ Registration error:", err.message);
-      // Optionally show a snackbar or error UI
+      await registerUser({
+        userName,
+        email,
+        password,
+        firstName,
+        lastName,
+        birthDate: birthDate || null,
+        homeTown: homeTown || null,
+      });
+
+      alert("✅ Success! Account created.");
+      navigate("/login");
+    } catch (error) {
+      alert("❌ Signup Failed: " + error.message);
     }
   };
 
@@ -143,61 +133,90 @@ export default function SignUp(props) {
           </Typography>
           <Box
             component="form"
-            onSubmit={handleSubmit}
+            onSubmit={onHandleSignUp}
             sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
-            {/* SIGN UP FORM */}
             <FormControl>
-              <FormLabel htmlFor="name">Full name</FormLabel>
+              <FormLabel>First Name</FormLabel>
               <TextField
-                autoComplete="name"
-                name="name"
-                required
                 fullWidth
-                id="name"
-                placeholder="Jon Snow"
-                error={nameError}
-                helperText={nameErrorMessage}
-                color={nameError ? "error" : "primary"}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="email">Email</FormLabel>
-              <TextField
                 required
-                fullWidth
-                id="email"
-                placeholder="your@email.com"
-                name="email"
-                autoComplete="email"
-                variant="outlined"
-                error={emailError}
-                helperText={emailErrorMessage}
-                color={passwordError ? "error" : "primary"}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="password">Password</FormLabel>
-              <TextField
-                required
-                fullWidth
-                name="password"
-                placeholder="••••••"
-                type="password"
-                id="password"
-                autoComplete="new-password"
-                variant="outlined"
-                error={passwordError}
-                helperText={passwordErrorMessage}
-                color={passwordError ? "error" : "primary"}
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
               />
             </FormControl>
 
-            {/* Update Checkbox & Sign Up Button */}
+            <FormControl>
+              <FormLabel>Last Name</FormLabel>
+              <TextField
+                fullWidth
+                required
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel>Email</FormLabel>
+              <TextField
+                fullWidth
+                required
+                type="email"
+                value={email}
+                error={!!errors.email}
+                helperText={errors.email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel>Username</FormLabel>
+              <TextField
+                fullWidth
+                required
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel>Password</FormLabel>
+              <TextField
+                fullWidth
+                required
+                type="password"
+                value={password}
+                error={!!errors.password}
+                helperText={errors.password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel>Birthdate (YYYY-MM-DD)</FormLabel>
+              <TextField
+                fullWidth
+                value={birthDate}
+                error={!!errors.birthDate}
+                helperText={errors.birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel>Hometown</FormLabel>
+              <TextField
+                fullWidth
+                value={homeTown}
+                onChange={(e) => setHomeTown(e.target.value)}
+              />
+            </FormControl>
+
             <FormControlLabel
-              control={<Checkbox value="allowExtraEmails" color="primary" />}
+              control={<Checkbox />}
               label="I want to receive updates via email."
             />
+
             <Button type="submit" fullWidth variant="contained">
               Sign up
             </Button>
@@ -207,12 +226,11 @@ export default function SignUp(props) {
             <Typography sx={{ color: "text.secondary" }}>or</Typography>
           </Divider>
 
-          {/* Sign Up w/ Google or Facebook  */}
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Button
               fullWidth
               variant="outlined"
-              onClick={() => alert("Sign up with Google")}
+              onClick={signInWithGoogle}
               startIcon={<GoogleIcon />}
             >
               Sign up with Google
@@ -220,21 +238,16 @@ export default function SignUp(props) {
             <Button
               fullWidth
               variant="outlined"
-              onClick={() => alert("Sign up with Facebook")}
+              onClick={signInWithFacebook}
               startIcon={<FacebookIcon />}
             >
               Sign up with Facebook
             </Button>
 
-            {/* Return to Login Screen */}
             <Typography sx={{ textAlign: "center" }}>
               Already have an account?{" "}
-              <Link
-                href="/signIn/"
-                variant="body2"
-                sx={{ alignSelf: "center" }}
-              >
-                Sign in
+              <Link href="/login" variant="body2">
+                Log in
               </Link>
             </Typography>
           </Box>

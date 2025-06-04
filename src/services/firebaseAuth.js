@@ -30,8 +30,18 @@ const isUsernameTaken = async (fullName) => {
 };
 
 //  Register a new user
-export const registerUser = async (fullName, email, password) => {
+export const registerUser = async ({
+  userName,
+  email,
+  password,
+  firstName,
+  lastName,
+  birthDate,
+  homeTown,
+}) => {
   try {
+    const fullName = `${firstName} ${lastName}`.trim();
+
     if (await isUsernameTaken(fullName)) {
       throw new Error("🛑 Username is already taken. Please choose another.");
     }
@@ -43,13 +53,15 @@ export const registerUser = async (fullName, email, password) => {
     );
     const user = userCredential.user;
 
-    // Refresh the ID token to ensure auth is available to Firestore
     await user.getIdToken(true);
 
     await setDoc(doc(db, "users", user.uid), {
       uid: user.uid,
       fullName,
+      userName,
       email,
+      birthDate: birthDate || null,
+      homeTown: homeTown || null,
       createdAt: serverTimestamp(),
     });
 

@@ -1,4 +1,13 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  loginUserWithEmail,
+  loginUserWithUsername,
+  signInWithGoogle,
+  signInWithFacebook,
+} from "../../services/firebaseAuth";
+import { getAuth, signInAnonymously } from "firebase/auth";
+
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
@@ -14,7 +23,6 @@ import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
 import ForgotPassword from "./forgotPassword";
-
 import { GoogleIcon, FacebookIcon } from "./customIcons";
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -30,7 +38,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
   },
   boxShadow:
     "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
-  ...theme.applyStyles("dark", {
+  ...theme.applyStyles?.("dark", {
     boxShadow:
       "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
   }),
@@ -52,65 +60,51 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
     backgroundImage:
       "radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))",
     backgroundRepeat: "no-repeat",
-    ...theme.applyStyles("dark", {
+    ...theme.applyStyles?.("dark", {
       backgroundImage:
         "radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))",
     }),
   },
 }));
 
-export default function SignIn(props) {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
+export default function Login(props) {
+  const navigate = useNavigate();
+  const [input, setInput] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [inputError, setInputError] = React.useState(false);
   const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
   const [open, setOpen] = React.useState(false);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleSubmit = (event) => {
-    if (emailError || passwordError) {
-      event.preventDefault();
+  const onHandleLogin = async (event) => {
+    event.preventDefault();
+    if (!input || !password) {
+      setInputError(!input);
+      setPasswordError(!password);
       return;
     }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+
+    try {
+      const isEmail = input.includes("@");
+      if (isEmail) {
+        await loginUserWithEmail(input, password);
+      } else {
+        await loginUserWithUsername(input, password);
+      }
+      console.log("✅ Login Successful");
+      navigate("/home");
+    } catch (error) {
+      alert("❌ Login Failed: " + error.message);
+    }
   };
 
-  const validateInputs = () => {
-    const email = document.getElementById("email");
-    const password = document.getElementById("password");
-
-    let isValid = true;
-
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage("Please enter a valid email address.");
-      isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage("");
+  const handleAnonymousLogin = async () => {
+    try {
+      const auth = getAuth();
+      const result = await signInAnonymously(auth);
+      navigate("/home", { state: { userID: result.user.uid } });
+    } catch (error) {
+      alert("❌ Anonymous Login Failed: " + error.message);
     }
-
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage("Password must be at least 6 characters long.");
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage("");
-    }
-
-    return isValid;
   };
 
   return (
@@ -121,73 +115,64 @@ export default function SignIn(props) {
           <Typography
             component="h1"
             variant="h4"
-            sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
+            sx={{ fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
           >
             Sign in
           </Typography>
           <Box
             component="form"
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              width: "100%",
-              gap: 2,
-            }}
+            onSubmit={onHandleLogin}
+            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
-            {/* Login Form  */}
             <FormControl>
-              <FormLabel htmlFor="email">Email</FormLabel>
+              <FormLabel htmlFor="email">Email or Username</FormLabel>
               <TextField
-                error={emailError}
-                helperText={emailErrorMessage}
+                error={inputError}
                 id="email"
-                type="email"
-                name="email"
-                placeholder="your@email.com"
-                autoComplete="email"
-                autoFocus
-                required
+                type="text"
+                value={input}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  setInputError(false);
+                }}
+                placeholder="your@email.com / username"
                 fullWidth
+                required
                 variant="outlined"
-                color={emailError ? "error" : "primary"}
               />
             </FormControl>
+
             <FormControl>
               <FormLabel htmlFor="password">Password</FormLabel>
               <TextField
                 error={passwordError}
-                helperText={passwordErrorMessage}
-                name="password"
-                placeholder="••••••"
-                type="password"
                 id="password"
-                autoComplete="current-password"
-                autoFocus
-                required
+                type="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordError(false);
+                }}
+                placeholder="••••••"
                 fullWidth
+                required
                 variant="outlined"
-                color={passwordError ? "error" : "primary"}
               />
             </FormControl>
+
             <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
+              control={<Checkbox value="remember" />}
               label="Remember me"
             />
-            <ForgotPassword open={open} handleClose={handleClose} />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              onClick={validateInputs}
-            >
+
+            <ForgotPassword open={open} handleClose={() => setOpen(false)} />
+            <Button type="submit" fullWidth variant="contained">
               Sign in
             </Button>
+
             <Link
               component="button"
-              type="button"
-              onClick={handleClickOpen}
+              onClick={() => setOpen(true)}
               variant="body2"
               sx={{ alignSelf: "center" }}
             >
@@ -195,13 +180,13 @@ export default function SignIn(props) {
             </Link>
           </Box>
 
-          {/* Sign In w/ Google or Facebook  */}
           <Divider>or</Divider>
+
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Button
               fullWidth
               variant="outlined"
-              onClick={() => alert("Sign in with Google")}
+              onClick={signInWithGoogle}
               startIcon={<GoogleIcon />}
             >
               Sign in with Google
@@ -209,20 +194,17 @@ export default function SignIn(props) {
             <Button
               fullWidth
               variant="outlined"
-              onClick={() => alert("Sign in with Facebook")}
+              onClick={signInWithFacebook}
               startIcon={<FacebookIcon />}
             >
               Sign in with Facebook
             </Button>
-
-            {/* Return to Sign Up Screen */}
+            <Button fullWidth variant="text" onClick={handleAnonymousLogin}>
+              Continue as Guest
+            </Button>
             <Typography sx={{ textAlign: "center" }}>
               Don&apos;t have an account?{" "}
-              <Link
-                href="/signUp/"
-                variant="body2"
-                sx={{ alignSelf: "center" }}
-              >
+              <Link href="/signup" variant="body2">
                 Sign up
               </Link>
             </Typography>

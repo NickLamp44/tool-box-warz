@@ -1,5 +1,7 @@
+// src/components/navigation/navBar.jsx
+
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -15,6 +17,9 @@ import MenuItem from "@mui/material/MenuItem";
 import { styled, alpha } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../../services/firebase";
 
 const pages = [
   { label: "Blogs", path: "/blogs" },
@@ -65,21 +70,53 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [user, setUser] = React.useState(null);
+  const [avatarUrl, setAvatarUrl] = React.useState(
+    localStorage.getItem("avatarUrl") || null
+  );
+  const navigate = useNavigate();
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
+  // 🔁 Listen for auth state & preload user profile
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+        const cached = localStorage.getItem("avatarUrl");
+        if (!cached) {
+          const userRef = doc(db, "users", firebaseUser.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            const data = userSnap.data();
+            const pic = data.profilePic || "";
+            setAvatarUrl(pic);
+            localStorage.setItem("avatarUrl", pic);
+          }
+        }
+      } else {
+        setUser(null);
+        setAvatarUrl(null);
+        localStorage.removeItem("avatarUrl");
+      }
+    });
 
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
+    return () => unsubscribe();
+  }, []);
 
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
+  const handleOpenNavMenu = (e) => setAnchorElNav(e.currentTarget);
+  const handleOpenUserMenu = (e) => setAnchorElUser(e.currentTarget);
+  const handleCloseNavMenu = () => setAnchorElNav(null);
+  const handleCloseUserMenu = () => setAnchorElUser(null);
 
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
+  // 🧭 Handle profile/settings/logout menu
+  const handleSettingClick = async (setting) => {
+    handleCloseUserMenu();
+    if (setting === "Logout") {
+      await signOut(auth);
+      localStorage.removeItem("avatarUrl");
+      navigate("/login");
+    } else {
+      navigate(`/${setting.toLowerCase()}`);
+    }
   };
 
   return (
@@ -97,11 +134,7 @@ export default function Navbar() {
       <Container maxWidth="xl">
         <Toolbar
           disableGutters
-          sx={{
-            minHeight: "100px",
-            alignItems: "center",
-            px: 2,
-          }}
+          sx={{ minHeight: "100px", alignItems: "center", px: 2 }}
         >
           {/* Logo + Brand Text (Desktop) */}
           <Box
@@ -115,12 +148,7 @@ export default function Navbar() {
               component="img"
               src="/Img/logos/LeTourDeToolBox.png"
               alt="ToolBoxWarz Logo"
-              sx={{
-                height: 125,
-                width: "auto",
-                mr: 1,
-                display: "block",
-              }}
+              sx={{ height: 125, width: "auto", mr: 1 }}
             />
             <Typography
               variant="h6"
@@ -139,28 +167,17 @@ export default function Navbar() {
             </Typography>
           </Box>
 
-          {/* rest of the toolbar layout */}
-
           {/* Mobile Menu Icon */}
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="app menu"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
+            <IconButton onClick={handleOpenNavMenu} color="inherit">
               <MenuIcon />
             </IconButton>
             <Menu
-              id="menu-appbar"
               anchorEl={anchorElNav}
-              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-              keepMounted
-              transformOrigin={{ vertical: "top", horizontal: "left" }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
               sx={{ display: { xs: "block", md: "none" } }}
             >
               {pages.map((page) => (
@@ -228,32 +245,49 @@ export default function Navbar() {
             />
           </Search>
 
-          {/* Avatar */}
+          {/* Avatar or Auth Links */}
           <Box sx={{ flexGrow: 0 }}>
-            {/* Onclick open settings */}
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
+            {user ? (
+              <>
+                {/* Onclick open settings */}
+                <Tooltip title="Open settings">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar alt={user.displayName} src={avatarUrl || ""} />
+                  </IconButton>
+                </Tooltip>
 
-            {/* Settings Menu */}
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              keepMounted
-              transformOrigin={{ vertical: "top", horizontal: "right" }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
+                {/* Settings Menu */}
+                <Menu
+                  sx={{ mt: "45px" }}
+                  anchorEl={anchorElUser}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  {settings.map((setting) => (
+                    <MenuItem
+                      key={setting}
+                      onClick={() => handleSettingClick(setting)}
+                    >
+                      <Typography textAlign="center">{setting}</Typography>
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </>
+            ) : (
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Button component={Link} to="/login" color="inherit">
+                  Login
+                </Button>
+                <Button
+                  component={Link}
+                  to="/signup"
+                  color="inherit"
+                  variant="outlined"
+                >
+                  Sign Up
+                </Button>
+              </Box>
+            )}
           </Box>
         </Toolbar>
       </Container>

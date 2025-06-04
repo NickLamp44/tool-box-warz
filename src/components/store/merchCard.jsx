@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import {
   Card,
@@ -11,8 +11,6 @@ import {
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import QuickShop from "./merchQuickShop";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../services/firebase";
 
 export default function MerchCard({ merch }) {
   const [open, setOpen] = useState(false);
