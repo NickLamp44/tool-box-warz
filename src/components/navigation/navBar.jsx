@@ -1,5 +1,3 @@
-// src/components/navigation/navBar.jsx
-
 import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
@@ -76,7 +74,6 @@ export default function Navbar() {
   );
   const navigate = useNavigate();
 
-  // 🔁 Listen for auth state & preload user profile
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
@@ -107,7 +104,6 @@ export default function Navbar() {
   const handleCloseNavMenu = () => setAnchorElNav(null);
   const handleCloseUserMenu = () => setAnchorElUser(null);
 
-  // 🧭 Handle profile/settings/logout menu
   const handleSettingClick = async (setting) => {
     handleCloseUserMenu();
     if (setting === "Logout") {

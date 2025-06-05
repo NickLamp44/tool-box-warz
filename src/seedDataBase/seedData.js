@@ -1,19 +1,19 @@
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../services/firebase.js";
-import { mockComments } from "./mockComments.js";
+import { MockShowCase } from "./mockShowCASE.js";
 
-export const seedComments = async () => {
+export const seedShowCases = async () => {
   try {
-    for (const comment of mockComments) {
-      const commentRef = doc(db, "comments", comment.id);
-      await setDoc(commentRef, comment);
-      console.log(`✅ Seeded comment: ${comment.id}`);
+    for (const showCase of MockShowCase) {
+      const showCaseRef = doc(db, "showcases", showCase.id);
+      await setDoc(showCaseRef, showCase);
+      console.log(`✅ Seeded showcase: ${showCase.id}`);
     }
-    console.log("🎉 All mock comments have been seeded.");
+    console.log("🎉 All mock showcases have been seeded.");
   } catch (error) {
-    console.error("🔥 Error seeding comment data:", error.message);
+    console.error("🔥 Error seeding showcase data:", error.message);
   }
 };
 
 // Optional: Run directly in dev mode (comment this line in production)
-seedComments();
+seedShowCases();
