@@ -9,15 +9,15 @@ import {
   Typography,
   Box,
 } from "@mui/material";
-// Pages & Components
 
-// Styling
+import { useCart } from "../../context/cartContext";
 
 export default function QuickShop({ open, onClose, merch }) {
   const [selectedSize, setSelectedSize] = useState("");
   const sizes = ["X-Small", "Small", "Medium", "Large", "X-Large"];
-
   const [quantity, setQuantity] = useState(1);
+
+  const { addToCart } = useCart();
 
   if (!merch) return null;
 
@@ -75,7 +75,6 @@ export default function QuickShop({ open, onClose, merch }) {
       </DialogContent>
 
       <DialogActions sx={{ justifyContent: "space-between", px: 3 }}>
-        {/* NEEDS UPDATING */}
         <Button
           variant="contained"
           color="primary"
@@ -86,7 +85,7 @@ export default function QuickShop({ open, onClose, merch }) {
             }
 
             const cartItem = {
-              id: merch.id,
+              id: `${merch.id}`,
               title: merch.title,
               size: selectedSize,
               quantity: quantity,
@@ -94,7 +93,7 @@ export default function QuickShop({ open, onClose, merch }) {
               image: merch.image,
             };
 
-            console.log("Add to cart:", cartItem);
+            addToCart(cartItem);
             onClose();
           }}
         >

@@ -19,45 +19,50 @@ import Checkout from "./screens/checkOut";
 import Profile from "./screens/profile";
 import UserAccess from "./screens/uam";
 
+// Cart Context
+import { CartProvider } from "./context/cartContext";
+
 // Stlying
 import "./App.css";
 
 // Render Function
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <WorkInProgressBanner />
-        <Navbar />
+    <CartProvider>
+      <Router>
+        <div className="App">
+          <WorkInProgressBanner />
+          <Navbar />
 
-        <main className="py-4">
-          <Routes>
-            {/* Home Page  */}
-            <Route path="/" element={<Home />} />
+          <main className="py-4">
+            <Routes>
+              {/* Home Page  */}
+              <Route path="/" element={<Home />} />
 
-            {/* Blogs + showCASE */}
-            <Route path="/blogs" element={<Blogs />} />
-            <Route path="/blog/:blogId" element={<BlogArticle />} />
-            <Route path="/showcases" element={<ShowCASE />} />
-            <Route path="/showcase" element={<ShowCASEArticle />} />
+              {/* Blogs + showCASE */}
+              <Route path="/blogs" element={<Blogs />} />
+              <Route path="/blog/:blogId" element={<BlogArticle />} />
+              <Route path="/showcases" element={<ShowCASE />} />
+              <Route path="/showcase" element={<ShowCASEArticle />} />
 
-            {/* Merch */}
-            <Route path="/shop" element={<Merch />} />
-            <Route path="/checkout" element={<Checkout />} />
+              {/* Merch */}
+              <Route path="/shop" element={<Merch />} />
+              <Route path="/checkout" element={<Checkout />} />
 
-            {/* Acess Management */}
-            <Route path="/uam" element={<UserAccess />} />
-            <Route path="/auth" element={<UserAccess />} />
-            <Route path="/signIn" element={<SignIn />} />
-            <Route path="/signUp" element={<SignUp />} />
+              {/* Acess Management */}
+              <Route path="/uam" element={<UserAccess />} />
+              <Route path="/auth" element={<UserAccess />} />
+              <Route path="/login" element={<SignIn />} />
+              <Route path="/signUp" element={<SignUp />} />
 
-            {/* Profile */}
-            <Route path="/profile" element={<Profile />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+              {/* Profile */}
+              <Route path="/profile" element={<Profile />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
+    </CartProvider>
   );
 }
 

@@ -15,36 +15,50 @@ import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 
 // Pages & Components
-import AddressForm from "../components/store/addressForm";
-import Info from "../components/store/info";
-import InfoMobile from "../components/store/infoMobile";
-import PaymentForm from "../components/store/paymentForm";
-import Review from "../components/store/review";
+import AddressForm from "../components/checkout/addressForm";
+import Info from "../components/checkout/info";
+import InfoMobile from "../components/checkout/infoMobile";
+import PaymentForm from "../components/checkout/paymentForm";
+import Review from "../components/checkout/review";
 // Styling
 
+import { useCart } from "../context/cartContext";
+
 const steps = ["Shipping address", "Payment details", "Review your order"];
-function getStepContent(step) {
-  switch (step) {
-    case 0:
-      return <AddressForm />;
-    case 1:
-      return <PaymentForm />;
-    case 2:
-      return <Review />;
-    default:
-      throw new Error("Unknown step");
-  }
-}
-export default function Checkout(props) {
+
+export default function Checkout() {
+  const { cartItems } = useCart();
+  const totalPrice = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
   const [activeStep, setActiveStep] = React.useState(0);
+
   const handleNext = () => {
+    if (cartItems.length === 0 || totalPrice <= 0) return;
     setActiveStep(activeStep + 1);
   };
+
   const handleBack = () => {
     setActiveStep(activeStep - 1);
   };
+
+  function getStepContent(step) {
+    switch (step) {
+      case 0:
+        return <AddressForm />;
+      case 1:
+        return <PaymentForm />;
+      case 2:
+        return <Review cart={cartItems} totalPrice={totalPrice} />;
+      default:
+        throw new Error("Unknown step");
+    }
+  }
+
   return (
-    <div {...props}>
+    <div>
       <CssBaseline enableColorScheme />
       <Box sx={{ position: "fixed", top: "1rem", right: "1rem" }}></Box>
 
@@ -84,9 +98,10 @@ export default function Checkout(props) {
               maxWidth: 500,
             }}
           >
-            <Info totalPrice={activeStep >= 2 ? "$144.97" : "$134.98"} />
+            <Info totalPrice={`$${totalPrice.toFixed(2)}`} />
           </Box>
         </Grid>
+
         <Grid
           size={{ sm: 12, md: 7, lg: 8 }}
           sx={{
@@ -101,6 +116,7 @@ export default function Checkout(props) {
             gap: { xs: 4, md: 8 },
           }}
         >
+          {/* Desktop Stepper */}
           <Box
             sx={{
               display: "flex",
@@ -135,6 +151,8 @@ export default function Checkout(props) {
               </Stepper>
             </Box>
           </Box>
+
+          {/* Mobile Info Card */}
           <Card sx={{ display: { xs: "flex", md: "none" }, width: "100%" }}>
             <CardContent
               sx={{
@@ -149,14 +167,14 @@ export default function Checkout(props) {
                   Selected products
                 </Typography>
                 <Typography variant="body1">
-                  {activeStep >= 2 ? "$144.97" : "$134.98"}
+                  ${totalPrice.toFixed(2)}
                 </Typography>
               </div>
-              <InfoMobile
-                totalPrice={activeStep >= 2 ? "$144.97" : "$134.98"}
-              />
+              <InfoMobile totalPrice={`$${totalPrice.toFixed(2)}`} />
             </CardContent>
           </Card>
+
+          {/* Step Content */}
           <Box
             sx={{
               display: "flex",
@@ -168,6 +186,7 @@ export default function Checkout(props) {
               gap: { xs: 5, md: "none" },
             }}
           >
+            {/* Mobile Stepper */}
             <Stepper
               id="mobile-stepper"
               activeStep={activeStep}
@@ -193,6 +212,8 @@ export default function Checkout(props) {
                 </Step>
               ))}
             </Stepper>
+
+            {/* Completion or Form */}
             {activeStep === steps.length ? (
               <Stack spacing={2} useFlexGap>
                 <Typography variant="h1">📦</Typography>
@@ -254,6 +275,7 @@ export default function Checkout(props) {
                     variant="contained"
                     endIcon={<ChevronRightRoundedIcon />}
                     onClick={handleNext}
+                    disabled={cartItems.length === 0 || totalPrice <= 0}
                     sx={{ width: { xs: "100%", sm: "fit-content" } }}
                   >
                     {activeStep === steps.length - 1 ? "Place order" : "Next"}

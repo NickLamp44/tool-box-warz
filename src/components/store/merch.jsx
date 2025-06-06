@@ -3,7 +3,7 @@
 // Pages & Components
 
 // Styling
-// src/components/store/merchList.jsx
+
 import React, { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../services/firebase";
