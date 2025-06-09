@@ -12,7 +12,7 @@ export default function Cart({ cartItems, onRemoveItem }) {
     <Box>
       {cartItems.map((item) => (
         <Box key={item.id} sx={{ mb: 2 }}>
-          <Typography variant="subtitle1">{item.name}</Typography>
+          <Typography variant="subtitle1">{item.title}</Typography>
           <Typography variant="body2">Qty: {item.quantity}</Typography>
           <Typography variant="body2">
             ${(item.price * item.quantity).toFixed(2)}

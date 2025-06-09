@@ -45,26 +45,33 @@ export default function Home() {
   }, []);
 
   //import Blogs for HomePage Spotlight
-  const [blogItems, setBlogItem] = useState([]);
+  const [blogs, setBlogs] = useState([]);
   const [loadingBlogs, setLoadingBlogs] = useState([true]);
 
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const blogRef = collection(db, "blogs");
-        const snapshot = await getDocs(blogRef);
-
-        const items = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setBlogItem(items.slice(0, 3));
+        const snapshot = await getDocs(collection(db, "blogs"));
+        const fetched = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            title: data.title,
+            author: data.authorName,
+            date: data.publishedDate,
+            category: data.tags?.[0] || "tools",
+            image: data.heroImage?.src,
+            previewText: data.subtitle,
+          };
+        });
+        setBlogs(fetched);
       } catch (err) {
-        console.error("❌ Error loading Blogs:", err);
+        console.error("🔥 Failed to fetch blogs:", err);
       } finally {
         setLoadingBlogs(false);
       }
     };
+
     fetchBlogs();
   }, []);
 
@@ -130,9 +137,9 @@ export default function Home() {
           </Box>
         ) : (
           <Grid container spacing={3}>
-            {blogItems.map((item) => (
-              <Grid item key={item.id} xs={12} sm={6} md={4}>
-                <BlogCard merch={item} />
+            {blogs.map((blog) => (
+              <Grid item key={blog.id} xs={12} sm={6} md={4}>
+                <BlogCard blog={blog} />
               </Grid>
             ))}
           </Grid>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -14,6 +15,8 @@ export default function CartModal({
   onRemoveItem,
   total,
 }) {
+  const navigate = useNavigate();
+
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
       <Box
@@ -47,7 +50,8 @@ export default function CartModal({
           ) : (
             cartItems.map((item, index) => (
               <Box key={index} sx={{ mb: 2 }}>
-                <Typography variant="subtitle1">{item.name}</Typography>
+                <img src={item.image} alt={item.title} width="60" height="60" />
+                <Typography variant="subtitle1">{item.title}</Typography>
                 <Typography variant="body2">Qty: {item.quantity}</Typography>
                 <Typography variant="body2">
                   ${item.price * item.quantity}
@@ -69,7 +73,16 @@ export default function CartModal({
 
         <Box sx={{ mt: "auto" }}>
           <Typography variant="h6">Total: ${total.toFixed(2)}</Typography>
-          <Button fullWidth variant="contained" color="primary" sx={{ mt: 2 }}>
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+            onClick={() => {
+              onClose();
+              navigate("/checkout");
+            }}
+          >
             Checkout
           </Button>
         </Box>
