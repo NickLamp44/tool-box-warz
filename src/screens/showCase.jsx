@@ -1,8 +1,7 @@
 // ShowCASE: Basic ShowCASE sorting & filtering
 // Category button filters
 // Blogs: Basic Blog sorting & filtering with MUI
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -10,70 +9,58 @@ import {
   ButtonGroup,
   Grid,
   Box,
+  CircularProgress,
 } from "@mui/material";
 import ShowCASECard from "../components/blog/showCaseCard";
+import { db } from "../services/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
-// Mock showCASE data
-const mockShowCASES = [
-  {
-    id: "pro-tool-case",
-    title: "Pro Mountain Biker’s Tool Case",
-    author: "Max Morgan",
-    date: "May 12, 2024",
-    category: "tools",
-    image: "https://via.placeholder.com/300x200",
-    previewText:
-      "Check out the 9 essential tools Max Morgan carries to every race.",
-  },
-  {
-    id: "video-setup",
-    title: "Setting Up Suspension - Video Guide",
-    author: "Tech Team",
-    date: "April 5, 2024",
-    category: "video",
-    image: "https://via.placeholder.com/300x200",
-    previewText:
-      "Watch our guide to setting sag, rebound, and pressure like a pro.",
-  },
-  {
-    id: "brake-bleed-guide",
-    title: "How to Bleed Disc Brakes",
-    author: "Alex Wrench",
-    date: "March 22, 2024",
-    category: "maintenance",
-    image: "https://via.placeholder.com/300x200",
-    previewText: "Step-by-step tips to get your brakes sharp again.",
-  },
-  {
-    id: "pedal-upgrades",
-    title: "Top 5 Pedals for Trail Riders",
-    author: "Riley Knob",
-    date: "May 1, 2024",
-    category: "tools",
-    image: "https://via.placeholder.com/300x200",
-    previewText: "Looking for better grip and durability? Start here.",
-  },
-];
+const categories = ["all", "tools", "video", "maintenance"];
 
-const categories = ["all", "Pro", "DH", "TBOY"];
-
-export default function ShowCASE() {
+export default function ShowCase() {
   const [activeCategory, setActiveCategory] = useState("all");
 
-  const filteredShowCASES =
+  const [showCases, setShowCases] = useState([]);
+  const [loadingShowCases, setLoadingShowCases] = useState([true]);
+
+  useEffect(() => {
+    const fetchShowCases = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "showcases"));
+        const fetched = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            title: data.title,
+            author: data.authorName,
+            date: data.publishedDate,
+            category: data.tags?.[0] || "tools",
+            image: data.heroImage?.src,
+            previewText: data.subtitle,
+          };
+        });
+        setShowCases(fetched);
+      } catch (err) {
+        console.error("🔥 Failed to fetch ShowCase:", err);
+      } finally {
+        setLoadingShowCases(false);
+      }
+    };
+
+    fetchShowCases();
+  }, []);
+
+  const filteredShowCases =
     activeCategory === "all"
-      ? mockShowCASES
-      : mockShowCASES.filter(
-          (showCASE) => showCASE.category === activeCategory
-        );
+      ? showCases
+      : showCases.filter((showcase) => showcase.category === activeCategory);
 
   return (
     <Container sx={{ my: 6 }}>
       <Typography variant="h4" gutterBottom>
-        ToolBox ShowCASE
+        ShowCASE
       </Typography>
 
-      {/* Category Filter Buttons */}
       <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
         <ButtonGroup variant="text" aria-label="category button group">
           {categories.map((cat) => (
@@ -98,14 +85,19 @@ export default function ShowCASE() {
         </ButtonGroup>
       </Box>
 
-      {/* showCASE Cards Grid */}
-      <Grid container spacing={4}>
-        {filteredShowCASES.map((showCASE) => (
-          <Grid item key={showCASE.id} xs={12} sm={6} md={4}>
-            <ShowCASECard showCASE={showCASE} />
-          </Grid>
-        ))}
-      </Grid>
+      {loadingShowCases ? (
+        <Box display="flex" justifyContent="center">
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Grid container spacing={3}>
+          {filteredShowCases.map((showcase) => (
+            <Grid item key={showcase.id} xs={12} sm={6} md={4}>
+              <ShowCASECard showcase={showcase} />
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Container>
   );
 }

@@ -1,6 +1,6 @@
-import { initializeApp } from "firebase/app";
-// 👇 Optional, remove this if you don't need analytics
-// import { getAnalytics, isSupported } from "firebase/analytics";
+// import dotenv from "dotenv";
+// dotenv.config();
+// import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -12,13 +12,6 @@ const firebaseConfig = {
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = initializeApp(firebaseConfig);
-
-// ✅ Completely comment this out or wrap with browser check
-// if (typeof window !== "undefined") {
-//   isSupported().then((yes) => {
-//     if (yes) getAnalytics(app);
-//   });
-// }
+// const app = initializeApp(firebaseConfig);
 
 export { firebaseConfig };

@@ -9,11 +9,11 @@ import Footer from "./components/generic/footer";
 import SignIn from "./components/uam/login";
 import SignUp from "./components/uam/signup";
 import BlogArticle from "./components/blog/blog";
-import ShowCASEArticle from "./components/blog/showCase";
+import ShowCaseArticle from "./components/blog/showCase";
 
 import Home from "./screens/home";
 import Blogs from "./screens/blogs";
-import ShowCASE from "./screens/showCase";
+import ShowCase from "./screens/showCase";
 import Merch from "./screens/merch";
 import Checkout from "./screens/checkOut";
 import Profile from "./screens/profile";
@@ -42,8 +42,11 @@ function App() {
               {/* Blogs + showCASE */}
               <Route path="/blogs" element={<Blogs />} />
               <Route path="/blog/:blogId" element={<BlogArticle />} />
-              <Route path="/showcases" element={<ShowCASE />} />
-              <Route path="/showcase" element={<ShowCASEArticle />} />
+              <Route path="/showcases" element={<ShowCase />} />
+              <Route
+                path="/showcase/:showCaseId"
+                element={<ShowCaseArticle />}
+              />
 
               {/* Merch */}
               <Route path="/shop" element={<Merch />} />
