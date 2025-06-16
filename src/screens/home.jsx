@@ -21,27 +21,34 @@ import MerchCard from "../components/store/merchCard";
 // Home Screen Component
 export default function Home() {
   //import ShowCASE for HomePage Spotlight
-  const [showCaseItems, setShowCaseItem] = useState([]);
-  const [loadingShowCase, setLoadingShowCase] = useState([true]);
+  const [showCase, setShowCase] = useState([]);
+  const [loadingShowCases, setLoadingShowCases] = useState([true]);
 
   useEffect(() => {
-    const fetchShowCase = async () => {
+    const fetchShowCases = async () => {
       try {
-        const showCaseRef = collection(db, "showCase");
-        const snapshot = await getDocs(showCaseRef);
-
-        const items = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setShowCaseItem(items.slice(0, 3));
+        const snapshot = await getDocs(collection(db, "showcases"));
+        const fetched = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            title: data.title,
+            author: data.authorName,
+            date: data.publishedDate,
+            category: data.tags?.[0] || "tools",
+            image: data.heroImage?.src,
+            previewText: data.subtitle,
+          };
+        });
+        setShowCase(fetched);
       } catch (err) {
-        console.error("❌ Error loading ShowCASE:", err);
+        console.error("🔥 Failed to fetch ShowCase:", err);
       } finally {
-        setLoadingShowCase(false);
+        setLoadingShowCases(false);
       }
     };
-    fetchShowCase();
+
+    fetchShowCases();
   }, []);
 
   //import Blogs for HomePage Spotlight
@@ -111,15 +118,15 @@ export default function Home() {
         <Typography variant="h4" gutterBottom align="center">
           Featured ShowCASE
         </Typography>
-        {loadingShowCase ? (
+        {loadingShowCases ? (
           <Box display="flex" justifyContent="center">
             <CircularProgress />
           </Box>
         ) : (
           <Grid container spacing={3}>
-            {showCaseItems.map((item) => (
-              <Grid item key={item.id} xs={12} sm={6} md={4}>
-                <ShowCASECard merch={item} />
+            {showCase.map((showcase) => (
+              <Grid item key={showcase.id} xs={12} sm={6} md={4}>
+                <ShowCASECard showcase={showcase} />
               </Grid>
             ))}
           </Grid>

@@ -51,7 +51,7 @@ const EMOJIS = [
   "💥",
 ];
 
-const Comments = ({ blogId }) => {
+const Comments = ({ blogId, showCaseId }) => {
   const [comments, setComments] = useState([]);
   const [input, setInput] = useState("");
   const [replyInputs, setReplyInputs] = useState({});
@@ -59,7 +59,7 @@ const Comments = ({ blogId }) => {
   useEffect(() => {
     const q = query(
       collection(db, "comments"),
-      where("blogId", "==", blogId),
+      where("blogId", "==", blogId || showCaseId),
       orderBy("timestamp", "desc")
     );
 
@@ -69,7 +69,7 @@ const Comments = ({ blogId }) => {
     });
 
     return () => unsubscribe();
-  }, [blogId]);
+  }, [blogId, showCaseId]);
 
   const handlePost = async (content, parentId = null) => {
     if (!content.trim()) return;
@@ -77,6 +77,7 @@ const Comments = ({ blogId }) => {
     const id = crypto.randomUUID();
     const newComment = {
       blogId,
+      showCaseId,
       id,
       authorId: "anonymous",
       content: content.trim(),

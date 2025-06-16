@@ -1,10 +1,10 @@
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../services/firebase.js";
-import { MockShowCase } from "./mockShowCASE.js";
+import { MockShowCaseVideo } from "./mockShowCASEvideo.js";
 
 export const seedShowCases = async () => {
   try {
-    for (const showCase of MockShowCase) {
+    for (const showCase of MockShowCaseVideo) {
       const showCaseRef = doc(db, "showcases", showCase.id);
       await setDoc(showCaseRef, showCase);
       console.log(`✅ Seeded showcase: ${showCase.id}`);
