@@ -28,9 +28,10 @@ export default function BlogCard({ blog }) {
   return (
     <Link to={`/blog/${blog.id}`} style={{ textDecoration: "none" }}>
       <Card sx={{ maxWidth: 345, cursor: "pointer" }}>
+        {/* Blog Card Header */}
         <CardHeader
           avatar={
-            <Avatar sx={{ bgcolor: red[500] }} aria-label="author">
+            <Avatar sx={{ bgcolor: red[700] }} aria-label="author">
               {getInitials(blog.author)}
             </Avatar>
           }
@@ -42,21 +43,29 @@ export default function BlogCard({ blog }) {
           title={blog.title}
           subheader={blog.date}
         />
+
+        {/* Blog Card Image */}
         <CardMedia
           component="img"
           height="194"
           image={blog.image}
           alt={blog.title}
         />
+        {/* Blog Card Preview */}
         <CardContent>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" height={10}>
             {blog.previewText}
           </Typography>
         </CardContent>
+
+        {/* Blog Card Actions */}
         <CardActions disableSpacing>
+          {/* Favorite */}
           <IconButton aria-label="add to favorites">
             <FavoriteIcon />
           </IconButton>
+
+          {/* Share */}
           <IconButton aria-label="share">
             <ShareIcon />
           </IconButton>

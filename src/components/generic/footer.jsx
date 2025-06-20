@@ -14,7 +14,7 @@ function Copyright() {
   return (
     <Typography variant="body2" sx={{ color: "text.secondary", mt: 1 }}>
       {"Copyright © "}
-      <Link color="text.secondary" href="https://mui.com/">
+      <Link color="text.secondary" href="https://tool-box-warz.vercel.app/">
         ToolBoxWarz
       </Link>
       &nbsp;
@@ -25,7 +25,20 @@ function Copyright() {
 
 export default function Footer() {
   return (
-    <React.Fragment>
+    <Box
+      component="footer"
+      sx={{
+        backgroundImage: `linear-gradient(to left, #584d4d 40%, rgba(88, 77, 77, 0)), url('/Img/logos/camo.avif')`,
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+        color: "white",
+        overflow: "visible",
+        pt: 4,
+        pb: 8,
+        mt: 10,
+      }}
+    >
       <Divider />
       <Container
         sx={{
@@ -33,7 +46,6 @@ export default function Footer() {
           flexDirection: "column",
           alignItems: "center",
           gap: { xs: 4, sm: 8 },
-          py: { xs: 8, sm: 10 },
           textAlign: { sm: "center", md: "left" },
         }}
       >
@@ -61,10 +73,7 @@ export default function Footer() {
               >
                 Join the newsletter
               </Typography>
-              <Typography
-                variant="body2"
-                sx={{ color: "text.secondary", mb: 2 }}
-              >
+              <Typography variant="body2" sx={{ mb: 2 }}>
                 Subscribe for weekly updates. No spams ever!
               </Typography>
               <InputLabel htmlFor="email-newsletter">Email</InputLabel>
@@ -75,15 +84,8 @@ export default function Footer() {
                   size="small"
                   variant="outlined"
                   fullWidth
-                  aria-label="Enter your email address"
                   placeholder="Your email address"
-                  slotProps={{
-                    htmlInput: {
-                      autoComplete: "off",
-                      "aria-label": "Enter your email address",
-                    },
-                  }}
-                  sx={{ width: "250px" }}
+                  sx={{ width: "250px", bgcolor: "white" }}
                 />
                 <Button
                   variant="contained"
@@ -96,32 +98,7 @@ export default function Footer() {
               </Stack>
             </Box>
           </Box>
-          <Box
-            sx={{
-              display: { xs: "none", sm: "flex" },
-              flexDirection: "column",
-              gap: 1,
-            }}
-          >
-            <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-              Product
-            </Typography>
-            <Link color="text.secondary" variant="body2" href="#">
-              Features
-            </Link>
-            <Link color="text.secondary" variant="body2" href="#">
-              Testimonials
-            </Link>
-            <Link color="text.secondary" variant="body2" href="#">
-              Highlights
-            </Link>
-            <Link color="text.secondary" variant="body2" href="#">
-              Pricing
-            </Link>
-            <Link color="text.secondary" variant="body2" href="#">
-              FAQs
-            </Link>
-          </Box>
+
           <Box
             sx={{
               display: { xs: "none", sm: "flex" },
@@ -163,6 +140,7 @@ export default function Footer() {
             </Link>
           </Box>
         </Box>
+
         <Box
           sx={{
             display: "flex",
@@ -187,6 +165,6 @@ export default function Footer() {
           </div>
         </Box>
       </Container>
-    </React.Fragment>
+    </Box>
   );
 }
