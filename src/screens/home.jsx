@@ -125,7 +125,7 @@ export default function Home() {
         ) : (
           <Grid container spacing={3}>
             {showCase.map((showcase) => (
-              <Grid item key={showcase.id} xs={12} sm={6} md={4}>
+              <Grid item key={showcase.id} span={12} lg={4}>
                 <ShowCASECard showcase={showcase} />
               </Grid>
             ))}
@@ -145,7 +145,7 @@ export default function Home() {
         ) : (
           <Grid container spacing={3}>
             {blogs.map((blog) => (
-              <Grid item key={blog.id} xs={12} sm={6} md={4}>
+              <Grid item key={blog.id} span={12} lg={4}>
                 <BlogCard blog={blog} />
               </Grid>
             ))}
