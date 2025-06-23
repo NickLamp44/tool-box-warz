@@ -18,6 +18,7 @@ import Merch from "./screens/merch";
 import Checkout from "./screens/checkOut";
 import Profile from "./screens/profile";
 import UserAccess from "./screens/uam";
+import AdminDashboard from "./screens/admin";
 
 // Cart Context
 import { CartProvider } from "./context/cartContext";
@@ -36,6 +37,9 @@ function App() {
 
           <main className="py-4">
             <Routes>
+              {/* Admin */}
+              <Route path="/admin" element={<AdminDashboard />} />
+
               {/* Home Page  */}
               <Route path="/" element={<Home />} />
 

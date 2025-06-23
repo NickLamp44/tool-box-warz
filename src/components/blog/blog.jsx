@@ -101,7 +101,7 @@ export default function BlogArticle() {
           )}
           {section.paragraphs?.map((text, i) => (
             <Typography key={i} paragraph>
-              {text}
+              {text.content}
             </Typography>
           ))}
           {section.images?.length > 0 &&

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import {
+  Box,
   Card,
   CardHeader,
   CardMedia,
@@ -27,8 +28,29 @@ export default function BlogCard({ blog }) {
 
   return (
     <Link to={`/blog/${blog.id}`} style={{ textDecoration: "none" }}>
-      <Card sx={{ maxWidth: 345, cursor: "pointer" }}>
-        {/* Blog Card Header */}
+      <Card
+        sx={{
+          width: { xs: "100%", sm: 300, md: 345 },
+          height: 420,
+          display: "flex",
+          flexDirection: "column",
+          padding: 2,
+          boxSizing: "border-box",
+          cursor: "pointer",
+        }}
+      >
+        <CardMedia
+          component="img"
+          image={blog.image}
+          alt={blog.title}
+          sx={{
+            borderRadius: 1,
+            width: "100%",
+            height: 160,
+            objectFit: "cover",
+          }}
+        />
+
         <CardHeader
           avatar={
             <Avatar sx={{ bgcolor: red[700] }} aria-label="author">
@@ -42,30 +64,38 @@ export default function BlogCard({ blog }) {
           }
           title={blog.title}
           subheader={blog.date}
+          sx={{ paddingBottom: 0 }}
         />
 
-        {/* Blog Card Image */}
-        <CardMedia
-          component="img"
-          height="194"
-          image={blog.image}
-          alt={blog.title}
-        />
-        {/* Blog Card Preview */}
-        <CardContent>
-          <Typography variant="body2" color="text.secondary" height={10}>
+        <CardContent
+          sx={{
+            flexGrow: 1,
+            paddingTop: 1,
+            paddingBottom: 0,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              display: "-webkit-box",
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}
+          >
             {blog.previewText}
           </Typography>
+
+          <Box sx={{ flexGrow: 1 }} />
         </CardContent>
 
-        {/* Blog Card Actions */}
         <CardActions disableSpacing>
-          {/* Favorite */}
           <IconButton aria-label="add to favorites">
             <FavoriteIcon />
           </IconButton>
-
-          {/* Share */}
           <IconButton aria-label="share">
             <ShareIcon />
           </IconButton>
