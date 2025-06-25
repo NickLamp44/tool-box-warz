@@ -7,7 +7,7 @@ import {
   Grid,
   Box,
 } from "@mui/material";
-import BlogCard from "../components/blog/blogCard";
+import BlogCard from "../components/content/blog/blogCard";
 import { db } from "../services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 

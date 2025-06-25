@@ -4,7 +4,7 @@ import Badge from "react-bootstrap/Badge";
 import Typography from "@mui/material/Typography";
 import { Link } from "react-router-dom";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../services/firebase";
+import { db } from "../../../services/firebase";
 
 export default function HeroCarousel() {
   const [index, setIndex] = useState(0);

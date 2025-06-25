@@ -6,10 +6,12 @@ import {
   CardMedia,
   CardActions,
   IconButton,
+  Link,
   CircularProgress,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
+import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import QuickShop from "./merchQuickShop";
 
 export default function MerchCard({ merch }) {
@@ -23,29 +25,33 @@ export default function MerchCard({ merch }) {
 
   return (
     <>
-      <Card sx={{ maxWidth: 345 }}>
-        <CardHeader
-          title={merch.title}
-          subheader={`$${parseFloat(merch.price).toFixed(2)}`}
-        />
-        <CardMedia
-          component="img"
-          height="194"
-          image={imagePath}
-          alt={merch.title}
-        />
-        <CardActions disableSpacing>
-          <IconButton aria-label="QuickShop" onClick={() => setOpen(true)}>
-            🛍️
-          </IconButton>
-          <IconButton aria-label="add to favorites">
-            <FavoriteIcon />
-          </IconButton>
-          <IconButton aria-label="share">
-            <ShareIcon />
-          </IconButton>
-        </CardActions>
-      </Card>
+      <Link to={`/merch/${merch.id}`} style={{ textDecoration: "none" }}>
+        <Card sx={{ maxWidth: 345 }}>
+          <CardHeader
+            title={merch.title}
+            subheader={`$${parseFloat(merch.price).toFixed(2)}`}
+          />
+
+          <CardMedia
+            component="img"
+            height="194"
+            image={imagePath}
+            alt={merch.title}
+          />
+
+          <CardActions disableSpacing>
+            <IconButton aria-label="QuickShop" onClick={() => setOpen(true)}>
+              <AddShoppingCartIcon />
+            </IconButton>
+            <IconButton aria-label="add to favorites">
+              <FavoriteIcon />
+            </IconButton>
+            <IconButton aria-label="share">
+              <ShareIcon />
+            </IconButton>
+          </CardActions>
+        </Card>
+      </Link>
       <QuickShop open={open} onClose={() => setOpen(false)} merch={merch} />
     </>
   );

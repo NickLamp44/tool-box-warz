@@ -1,36 +1,39 @@
+// Blogs: Basic Blog w hero at top, text & photos, gallery at bottom, comment section
+// options for video blogs
+
+// Frameworks & Libraries
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../services/firebase";
+import { db } from "../../../services/firebase";
 import { Container, Row, Col, Badge } from "react-bootstrap";
 import { Typography, Divider } from "@mui/material";
 import "bootstrap/dist/css/bootstrap.min.css";
 // Pages & Components
-import ShowCaseViewer from "./showCaseViewer";
-import Comments from "./comments";
+import Comments from "../comments/comments";
 // Styling
 
-export default function ShowCaseArticle() {
-  const { showCaseId } = useParams();
-  const [showCase, setShowCase] = useState(null);
+export default function BlogArticle() {
+  const { blogId } = useParams();
+  const [blog, setBlog] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchShowCase = async () => {
+    const fetchBlog = async () => {
       try {
-        const showCaseRef = doc(db, "showcases", showCaseId);
-        const showCaseSnap = await getDoc(showCaseRef);
-        if (showCaseSnap.exists()) {
-          setShowCase(showCaseSnap.data());
+        const blogRef = doc(db, "blogs", blogId);
+        const blogSnap = await getDoc(blogRef);
+        if (blogSnap.exists()) {
+          setBlog(blogSnap.data());
         } else {
-          setError("ShowCase not found");
+          setError("Blog not found");
         }
       } catch (err) {
-        setError("Failed to fetch ShowCase");
+        setError("Failed to fetch blog");
       }
     };
-    fetchShowCase();
-  }, [showCaseId]);
+    fetchBlog();
+  }, [blogId]);
 
   if (error)
     return (
@@ -38,7 +41,7 @@ export default function ShowCaseArticle() {
         <p>{error}</p>
       </Container>
     );
-  if (!showCase)
+  if (!blog)
     return (
       <Container>
         <p>Loading...</p>
@@ -50,8 +53,8 @@ export default function ShowCaseArticle() {
       {/* Hero */}
       <section className="position-relative text-center mb-4">
         <img
-          src={showCase.heroImage?.src}
-          alt={showCase.heroImage?.alt}
+          src={blog.heroImage?.src}
+          alt={blog.heroImage?.alt}
           className="img-fluid w-100 rounded"
           style={{ height: "400px", objectFit: "cover" }}
         />
@@ -67,14 +70,14 @@ export default function ShowCaseArticle() {
           style={{ zIndex: 2 }}
         >
           <Typography variant="h3" component="h1" gutterBottom>
-            {showCase.title}
+            {blog.title}
           </Typography>
-          <Typography variant="subtitle1">By {showCase.authorName}</Typography>
+          <Typography variant="subtitle1">By {blog.authorName}</Typography>
           <Typography variant="subtitle2" className="text-light">
-            {showCase.publishedDate}
+            {blog.publishedDate}
           </Typography>
           <div className="mt-2">
-            {showCase.tags?.map((tag) => (
+            {blog.tags?.map((tag) => (
               <Badge key={tag} bg="light" text="dark" className="me-1">
                 {tag}
               </Badge>
@@ -85,14 +88,11 @@ export default function ShowCaseArticle() {
 
       {/* Subtitle */}
       <Typography variant="h4" className="mt-5 mb-3">
-        {showCase.subtitle}
+        {blog.subtitle}
       </Typography>
 
-      {/* Video and Showcase Viewer */}
-      <ShowCaseViewer showcase={showCase} />
-
-      {/* ShowCase Sections */}
-      {showCase.sections.map((section, index) => (
+      {/* Blog Sections */}
+      {blog.sections.map((section, index) => (
         <section key={index} className="mb-5">
           {section.heading && (
             <Typography variant={index === 0 ? "h5" : "h3"} gutterBottom>
@@ -129,7 +129,7 @@ export default function ShowCaseArticle() {
       ))}
 
       <Divider className="my-4" />
-      <Comments showCaseId={showCaseId} />
+      <Comments blogId={blogId} />
     </Container>
   );
 }

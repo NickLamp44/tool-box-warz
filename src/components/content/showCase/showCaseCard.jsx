@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+
 import { red } from "@mui/material/colors";
 
 export default function ShowCASECard({ showcase }) {
@@ -56,11 +56,6 @@ export default function ShowCASECard({ showcase }) {
             <Avatar sx={{ bgcolor: red[700] }} aria-label="author">
               {getInitials(showcase.author)}
             </Avatar>
-          }
-          action={
-            <IconButton aria-label="settings">
-              <MoreVertIcon />
-            </IconButton>
           }
           title={showcase.title}
           subheader={showcase.date}

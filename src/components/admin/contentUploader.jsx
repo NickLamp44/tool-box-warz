@@ -1,10 +1,10 @@
 import React, { useState } from "react";
+import frontMatter from "front-matter";
+import { v4 as uuidv4 } from "uuid";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../services/firebase";
-import frontMatter from "front-matter";
-
-import { v4 as uuidv4 } from "uuid";
+import { parseContent } from "../../util/parseContent";
 
 export default function ContentUploader() {
   const [markdownFile, setMarkdownFile] = useState(null);
@@ -33,7 +33,7 @@ export default function ContentUploader() {
       const fileText = await markdownFile.text();
       const parsed = frontMatter(fileText);
       const data = parsed.attributes;
-      const content = parsed.body;
+      const content = parseContent(parsed.body);
 
       const storage = getStorage();
       const uploadedMedia = await Promise.all(
@@ -46,16 +46,16 @@ export default function ContentUploader() {
       );
 
       const mainDoc = {
-        title: data.title,
-        subtitle: data.subtitle,
-        authorName: data.authorName,
-        publishedDate: data.publishedDate,
-        createdAt: new Date(data.createdAt),
-        tags: data.tags,
-        heroImage: data.heroImage,
+        title: data.title || "Untitled",
+        subtitle: data.subtitle || "",
+        authorName: data.authorName || "Unknown",
+        publishedDate: data.publishedDate || null,
+        createdAt: new Date(data.createdAt || data.publishedDate || Date.now()),
+        tags: data.tags || [],
+        heroImage: data.heroImage || {},
         videos: videoLinks.filter((link) => link.trim() !== ""),
-        images: uploadedMedia,
-        content,
+        images: uploadedMedia || [],
+        content: content || [],
         publishedAt: serverTimestamp(),
       };
 
