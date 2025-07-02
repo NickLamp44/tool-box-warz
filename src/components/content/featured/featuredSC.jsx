@@ -1,6 +1,3 @@
-// ShowCASE: Basic ShowCASE sorting & filtering
-// Category button filters
-// Blogs: Basic Blog sorting & filtering with MUI
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -11,13 +8,13 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import ShowCASECard from "../components/content/showCase/showCaseCard";
-import { db } from "../services/firebase";
+import ShowCASECard from "../showCase/showCaseCard";
+import { db } from "../../../services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 
-const categories = ["All", "TBoY", "ShowCASE", "Pro DH", "DIY"];
+const categories = ["All", "Most Recent", "Most Popular"];
 
-export default function ShowCase() {
+export default function FeaturedShowCase() {
   const [activeCategory, setActiveCategory] = useState("all");
 
   const [showCases, setShowCases] = useState([]);
@@ -58,7 +55,7 @@ export default function ShowCase() {
   return (
     <Container sx={{ my: 6 }}>
       <Typography variant="h4" gutterBottom>
-        ShowCASE
+        Featured ShowCASE
       </Typography>
 
       <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>

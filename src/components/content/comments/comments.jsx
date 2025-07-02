@@ -16,7 +16,7 @@ import {
   Stack,
   IconButton,
 } from "@mui/material";
-import { db } from "../../services/firebase";
+import { db } from "../../../services/firebase";
 import {
   collection,
   query,

@@ -1,6 +1,3 @@
-// ShowCASE: Basic ShowCASE sorting & filtering
-// Category button filters
-// Blogs: Basic Blog sorting & filtering with MUI
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -11,22 +8,22 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import ShowCASECard from "../components/content/showCase/showCaseCard";
-import { db } from "../services/firebase";
+import BlogCard from "../blog/blogCard";
+import { db } from "../../../services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 
-const categories = ["All", "TBoY", "ShowCASE", "Pro DH", "DIY"];
+const categories = ["All", "Most Recent", "Most Popular"];
 
-export default function ShowCase() {
+export default function FeaturedBlogs() {
+  const [allMerch, setAllMerch] = useState([]);
   const [activeCategory, setActiveCategory] = useState("all");
-
-  const [showCases, setShowCases] = useState([]);
-  const [loadingShowCases, setLoadingShowCases] = useState([true]);
+  const [blogs, setBlogs] = useState([]);
+  const [loadingBlogs, setLoadingBlogs] = useState([true]);
 
   useEffect(() => {
-    const fetchShowCases = async () => {
+    const fetchBlogs = async () => {
       try {
-        const snapshot = await getDocs(collection(db, "showcases"));
+        const snapshot = await getDocs(collection(db, "blogs"));
         const fetched = snapshot.docs.map((doc) => {
           const data = doc.data();
           return {
@@ -34,31 +31,31 @@ export default function ShowCase() {
             title: data.title,
             author: data.authorName,
             date: data.publishedDate,
-            category: data.tags?.[0] || "tools",
+            category: data.tags?.[0] || "Blog",
             image: data.heroImage?.src,
             previewText: data.subtitle,
           };
         });
-        setShowCases(fetched);
+        setBlogs(fetched);
       } catch (err) {
         console.error("🔥 Failed to fetch ShowCase:", err);
       } finally {
-        setLoadingShowCases(false);
+        setLoadingBlogs(false);
       }
     };
 
-    fetchShowCases();
+    fetchBlogs();
   }, []);
 
-  const filteredShowCases =
+  const filteredBlogs =
     activeCategory === "all"
-      ? showCases
-      : showCases.filter((showcase) => showcase.category === activeCategory);
+      ? blogs
+      : blogs.filter((blog) => blog.category === activeCategory);
 
   return (
     <Container sx={{ my: 6 }}>
       <Typography variant="h4" gutterBottom>
-        ShowCASE
+        Featured Blogs
       </Typography>
 
       <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
@@ -85,15 +82,15 @@ export default function ShowCase() {
         </ButtonGroup>
       </Box>
 
-      {loadingShowCases ? (
+      {loadingBlogs ? (
         <Box display="flex" justifyContent="center">
           <CircularProgress />
         </Box>
       ) : (
         <Grid container spacing={3}>
-          {filteredShowCases.map((showcase) => (
-            <Grid item key={showcase.id} xs={12} sm={6} md={4}>
-              <ShowCASECard showcase={showcase} />
+          {filteredBlogs.map((blog) => (
+            <Grid item key={blog.id} xs={12} sm={6} md={4}>
+              <BlogCard blog={blog} />
             </Grid>
           ))}
         </Grid>

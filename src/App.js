@@ -8,8 +8,9 @@ import Navbar from "./components/navigation/navBar";
 import Footer from "./components/generic/footer";
 import SignIn from "./components/uam/login";
 import SignUp from "./components/uam/signup";
-import BlogArticle from "./components/blog/blog";
-import ShowCaseArticle from "./components/blog/showCase";
+import BlogArticle from "./components/content/blog/blog";
+import ShowCaseArticle from "./components/content/showCase/showCase";
+import MerchItem from "./components/store/merchItem";
 
 import Home from "./screens/home";
 import Blogs from "./screens/blogs";
@@ -18,6 +19,7 @@ import Merch from "./screens/merch";
 import Checkout from "./screens/checkOut";
 import Profile from "./screens/profile";
 import UserAccess from "./screens/uam";
+import AdminDashboard from "./screens/admin";
 
 // Cart Context
 import { CartProvider } from "./context/cartContext";
@@ -36,6 +38,9 @@ function App() {
 
           <main className="py-4">
             <Routes>
+              {/* Admin */}
+              <Route path="/admin" element={<AdminDashboard />} />
+
               {/* Home Page  */}
               <Route path="/" element={<Home />} />
 
@@ -50,6 +55,7 @@ function App() {
 
               {/* Merch */}
               <Route path="/shop" element={<Merch />} />
+              <Route path="/shop/:merchId" element={<MerchItem />} />
               <Route path="/checkout" element={<Checkout />} />
 
               {/* Acess Management */}
