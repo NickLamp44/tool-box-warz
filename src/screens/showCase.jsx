@@ -15,7 +15,7 @@ import ShowCASECard from "../components/content/showCase/showCaseCard";
 import { db } from "../services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 
-const categories = ["all", "tools", "video", "maintenance"];
+const categories = ["All", "TBoY", "ShowCASE", "Pro DH", "DIY"];
 
 export default function ShowCase() {
   const [activeCategory, setActiveCategory] = useState("all");

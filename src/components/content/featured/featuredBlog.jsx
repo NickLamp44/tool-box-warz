@@ -1,74 +1,85 @@
+import React, { useState, useEffect } from "react";
 import {
-  ToggleButton,
-  ToggleButtonGroup,
+  Container,
   Typography,
+  Button,
+  ButtonGroup,
   Grid,
   Box,
   CircularProgress,
-  Container,
 } from "@mui/material";
-import { useState, useEffect } from "react";
-import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
-import { db } from "../firebase"; // adjust path as needed
-import BlogCard from "./BlogCard";
+import BlogCard from "../blog/blogCard";
+import { db } from "../../../services/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
-const FeaturedBlogs = () => {
+const categories = ["All", "Most Recent", "Most Popular"];
+
+export default function FeaturedBlogs() {
+  const [allMerch, setAllMerch] = useState([]);
+  const [activeCategory, setActiveCategory] = useState("all");
   const [blogs, setBlogs] = useState([]);
-  const [loadingBlogs, setLoadingBlogs] = useState(true);
-  const [sortType, setSortType] = useState("recent");
-
-  const fetchBlogs = async (type) => {
-    try {
-      setLoadingBlogs(true);
-      const orderField = type === "popular" ? "views" : "publishedDate";
-      const blogQuery = query(
-        collection(db, "blogs"),
-        orderBy(orderField, "desc"),
-        limit(3)
-      );
-      const snapshot = await getDocs(blogQuery);
-      const fetched = snapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          title: data.title,
-          author: data.authorName,
-          date: data.publishedDate,
-          category: data.tags?.[0] || "tools",
-          image: data.heroImage?.src,
-          previewText: data.subtitle,
-        };
-      });
-      setBlogs(fetched);
-    } catch (err) {
-      console.error("🔥 Failed to fetch blogs:", err);
-    } finally {
-      setLoadingBlogs(false);
-    }
-  };
+  const [loadingBlogs, setLoadingBlogs] = useState([true]);
 
   useEffect(() => {
-    fetchBlogs(sortType);
-  }, [sortType]);
+    const fetchBlogs = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "blogs"));
+        const fetched = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            title: data.title,
+            author: data.authorName,
+            date: data.publishedDate,
+            category: data.tags?.[0] || "Blog",
+            image: data.heroImage?.src,
+            previewText: data.subtitle,
+          };
+        });
+        setBlogs(fetched);
+      } catch (err) {
+        console.error("🔥 Failed to fetch ShowCase:", err);
+      } finally {
+        setLoadingBlogs(false);
+      }
+    };
+
+    fetchBlogs();
+  }, []);
+
+  const filteredBlogs =
+    activeCategory === "all"
+      ? blogs
+      : blogs.filter((blog) => blog.category === activeCategory);
 
   return (
-    <Container className="mb-5">
-      <Typography variant="h4" gutterBottom align="center">
+    <Container sx={{ my: 6 }}>
+      <Typography variant="h4" gutterBottom>
         Featured Blogs
       </Typography>
 
-      <Box display="flex" justifyContent="center" mb={2}>
-        <ToggleButtonGroup
-          value={sortType}
-          exclusive
-          onChange={(e, newSort) => {
-            if (newSort) setSortType(newSort);
-          }}
-          size="small"
-        >
-          <ToggleButton value="recent">Recent</ToggleButton>
-          <ToggleButton value="popular">Popular</ToggleButton>
-        </ToggleButtonGroup>
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
+        <ButtonGroup variant="text" aria-label="category button group">
+          {categories.map((cat) => (
+            <Button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              variant={activeCategory === cat ? "contained" : "text"}
+              sx={{
+                textTransform: "capitalize",
+                color: activeCategory === cat ? "white" : "inherit",
+                backgroundColor:
+                  activeCategory === cat ? "primary.main" : "transparent",
+                "&:hover": {
+                  backgroundColor:
+                    activeCategory === cat ? "primary.dark" : "action.hover",
+                },
+              }}
+            >
+              {cat}
+            </Button>
+          ))}
+        </ButtonGroup>
       </Box>
 
       {loadingBlogs ? (
@@ -77,7 +88,7 @@ const FeaturedBlogs = () => {
         </Box>
       ) : (
         <Grid container spacing={3}>
-          {blogs.map((blog) => (
+          {filteredBlogs.map((blog) => (
             <Grid item key={blog.id} xs={12} sm={6} md={4}>
               <BlogCard blog={blog} />
             </Grid>
@@ -86,6 +97,4 @@ const FeaturedBlogs = () => {
       )}
     </Container>
   );
-};
-
-export default FeaturedBlogs;
+}

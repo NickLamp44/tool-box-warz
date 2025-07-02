@@ -8,56 +8,46 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import ShowCASECard from "../showCase/showCaseCard";
-import { db } from "../../../services/firebase";
+import MerchCard from "../../store/merchCard";
 import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../../services/firebase";
 
-const categories = ["All", "Most Recent", "Most Popular"];
+const categories = ["all", "Shirt", "Sweatshirt", "Headwear", "Accessories"];
 
-export default function FeaturedShowCase() {
+export default function FeaturedMerch() {
   const [activeCategory, setActiveCategory] = useState("all");
-
-  const [showCases, setShowCases] = useState([]);
-  const [loadingShowCases, setLoadingShowCases] = useState([true]);
+  const [items, setItems] = useState([]);
+  const [loadingItems, setLoadingItems] = useState(true);
 
   useEffect(() => {
-    const fetchShowCases = async () => {
+    const fetchMerch = async () => {
       try {
-        const snapshot = await getDocs(collection(db, "showcases"));
-        const fetched = snapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            title: data.title,
-            author: data.authorName,
-            date: data.publishedDate,
-            category: data.tags?.[0] || "tools",
-            image: data.heroImage?.src,
-            previewText: data.subtitle,
-          };
-        });
-        setShowCases(fetched);
+        const merchRef = collection(db, "merch");
+        const snapshot = await getDocs(merchRef);
+        const merchData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setItems(merchData);
       } catch (err) {
-        console.error("🔥 Failed to fetch ShowCase:", err);
+        console.error("🔥 Error fetching merch:", err);
       } finally {
-        setLoadingShowCases(false);
+        setLoadingItems(false);
       }
     };
-
-    fetchShowCases();
+    fetchMerch();
   }, []);
 
-  const filteredShowCases =
+  const filteredMerch =
     activeCategory === "all"
-      ? showCases
-      : showCases.filter((showcase) => showcase.category === activeCategory);
+      ? items
+      : items.filter((item) => item.category === activeCategory);
 
   return (
     <Container sx={{ my: 6 }}>
       <Typography variant="h4" gutterBottom>
-        Featured ShowCASE
+        Featured Merch
       </Typography>
-
       <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
         <ButtonGroup variant="text" aria-label="category button group">
           {categories.map((cat) => (
@@ -82,15 +72,13 @@ export default function FeaturedShowCase() {
         </ButtonGroup>
       </Box>
 
-      {loadingShowCases ? (
-        <Box display="flex" justifyContent="center">
-          <CircularProgress />
-        </Box>
+      {loadingItems ? (
+        <CircularProgress />
       ) : (
-        <Grid container spacing={3}>
-          {filteredShowCases.map((showcase) => (
-            <Grid item key={showcase.id} xs={12} sm={6} md={4}>
-              <ShowCASECard showcase={showcase} />
+        <Grid container spacing={4}>
+          {filteredMerch.map((item) => (
+            <Grid item key={item.id} xs={12} sm={6} md={4}>
+              <MerchCard merch={item} />
             </Grid>
           ))}
         </Grid>
