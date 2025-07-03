@@ -21,7 +21,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../services/firebase";
 import { useCart } from "../../context/cartContext";
-import CartModal from "../cart/cartModal";
+import CartModal from "../store/cart/cartModal";
 
 const pages = [
   { label: "Blogs", path: "/blogs" },

@@ -24,18 +24,20 @@ export default function FeaturedShowCase() {
     const fetchShowCases = async () => {
       try {
         const snapshot = await getDocs(collection(db, "showcases"));
-        const fetched = snapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            title: data.title,
-            author: data.authorName,
-            date: data.publishedDate,
-            category: data.tags?.[0] || "tools",
-            image: data.heroImage?.src,
-            previewText: data.subtitle,
-          };
-        });
+        const fetched = snapshot.docs
+          .map((doc) => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              title: data.title,
+              author: data.authorName,
+              date: data.publishedDate,
+              category: data.tags?.[0] || "tools",
+              image: data.heroImage?.src,
+              previewText: data.subtitle,
+            };
+          })
+          .slice(0, 3);
         setShowCases(fetched);
       } catch (err) {
         console.error("🔥 Failed to fetch ShowCase:", err);

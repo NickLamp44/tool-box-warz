@@ -15,11 +15,11 @@ import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 
 // Pages & Components
-import AddressForm from "../components/checkout/addressForm";
-import Info from "../components/checkout/info";
-import InfoMobile from "../components/checkout/infoMobile";
-import PaymentForm from "../components/checkout/paymentForm";
-import Review from "../components/checkout/review";
+import AddressForm from "../components/store/checkout/addressForm";
+import Info from "../components/store/checkout/info";
+import InfoMobile from "../components/store/checkout/infoMobile";
+import PaymentForm from "../components/store/checkout/paymentForm";
+import Review from "../components/store/checkout/review";
 // Styling
 
 import { useCart } from "../context/cartContext";
