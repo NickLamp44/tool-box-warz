@@ -2,7 +2,7 @@
 title: "Tools Everyone Should Bring to the Races"
 authorName: "Max Morgan"
 publishedDate: 2020-01-24
-subtitle: "From Weekend Warrior to Pro Factory Rider. Here are the 9 tools you can’t live without when between the tape"
+subtitle: "From Weekend Warrior to Pro Factory Rider. Here are the 9 tools you can’t live without when between the tape."
 
 heroImage:
   src: "gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProToolBoxCheck_1.webp"
@@ -21,11 +21,10 @@ Having the right set of tools makes getting the job done much easier and alot of
 
 type: "section"
 
-<img
-src="/toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProToolBoxCheck_2.webp"
-alt="Pedros Master Toolkit Case "
-style={{ maxWidth: "100%", borderRadius: "8px" }}
-/>
+Image :
+alt "Pedros Master Tool Kit Box"
+gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProToolBoxCheck_1.webp
+
 This hard case is a Pedro’s Master Tool Kit Box. Pedro’s offers their Master Box
 both empty and as a full kit. I started with an empty box—that way I could fill the
 box with exactly the tools I wanted to use. Having a hard case that seals itself
@@ -43,29 +42,24 @@ having to do much customization.
 
 ## The Layers
 
-type: "section"
+type: "doubleSection"
 
-<img
-src="/toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProToolBoxCheck_3.webp"
-alt="Main top lid layer"
-style={{ maxWidth: "100%", borderRadius: "8px" }}
-/>
+Image :
+alt "Main top lid layer"
+gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProToolBoxCheck_3.webp
 
-<img
-src="/toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProToolBoxCheck_3.webp"
-alt="Main bottom layer"
-style={{ maxWidth: "100%", borderRadius: "8px" }}
-/>
+Image :
+alt "Main bottom layer"
+gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProToolBoxCheck_4.webp
 
 ---
 
 ## Tools You Cannot Go Without
 
-type: "section"
+type: "tripleSection"
 
 ### Wera Hex Plus Allen Keys
 
-(subsection1)
 Image :
 alt "Hex Keys"
 gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProToolBoxCheck_15.webp
@@ -74,8 +68,6 @@ Everyone needs a set of allen keys to work on their bike. No matter if you are w
 
 ### Wera Torx L-Key Set
 
-(subsection2)
-
 Image :
 alt "Torx Set"
 gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProToolBoxCheck_16.webp
@@ -83,8 +75,6 @@ gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProTool
 Just like the hex L-key set from Wera, I decided to get the same style for Torx as well. This set includes a T8 all the way up to T40. Although not all of these sizes are commonly seen on mountain bikes, I like to keep them in the tool box anyway. They are perfect for installing brake rotor bolts and removing brake bleed port screws. All the pretty colors help you find the size you need quick and easy.
 
 ### Topeak SmartGauge D2 Digital Tire Pressure Gauge
-
-(subsection3)
 
 Image :
 alt "Topeak Pressure Gauge"
@@ -100,7 +90,6 @@ type: "section"
 
 ### Metal Tape Measurer
 
-(subsection1)
 Image :
 alt "Metal Tape Measurer"
 gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProToolBoxCheck_17.webp
@@ -108,8 +97,6 @@ gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProTool
 Believe it or not, I use this small metal ruler almost as much as any tool in my toolbox. It’s perfect for measuring and setting sag, and great for matching exactly where all of your controls are from one side of the handlebars to the other. Whenever I pull the forks off to do a lower leg service, having the metal measuring tape is handy when you need to slide those forks back to exactly the same height in the crowns. If you are someone very particular with your bike setup, you will find yourself grabbing this tape measurer more times than not.
 
 ### Torque Wrench
-
-(subsection2)
 
 Image :
 alt "Park Tool Torque Wrench"
@@ -119,8 +106,6 @@ Carrying a torque wrench in your tool box may seem more obvious than not, but fo
 
 ### Bearing Press And Removal Tools
 
-(subsection3)
-
 Image :
 alt "Bearing Press"
 gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProToolBoxCheck_9.webp
@@ -128,8 +113,6 @@ gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProTool
 Specific bearing press tools are always handy to have, and when you don’t have them, you can waist a lot of time fighting a bearing to come out. Having this Industry Nine wheel bearing removal and press kit makes swapping hub bearings a breeze. I don’t need to change hub bearings very often, but when I do, I wouldn’t want to give it a go without these tools. Making sure bearings are pressed in securely and straight is exactly what you want. Some of these specialty tools are cool to keep in your tool box!
 
 ### Wera Hex Head Screwdrivers
-
-(subsection4)
 
 Image :
 alt "Hex ScrewDrivers"
@@ -141,11 +124,9 @@ Using multi tools or tools that can fit a variety of different fasteners is hand
 
 ## More Essentails
 
-type: "section"
+type: "doubleSection"
 
 ### Kinpex86 03 180 7 in Pliers
-
-(subsection1)
 
 Image :
 alt "Kinpex86 03 180 7 in Pliers"
@@ -154,8 +135,6 @@ gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProTool
 The Knipex wrench pliers are one of those tools that replaces ten others. These pliers are great because the clamping jaws always close parallel to each other, making it easy to clamp down on square surfaces. I use the Knipex pliers most of the time as a wrench on a cassette tool, servicing brake lines, and even straightening dents in rims. The 7 inch pliers are great because they are small enough to be lightweight and easy to work with, but they are also long enough to torque something down if needed.
 
 ### Wera 1/4 Drive Zyklop Speed Ratchet
-
-(subsection2)
 
 Image :
 alt "Wera Ratchet Tool"

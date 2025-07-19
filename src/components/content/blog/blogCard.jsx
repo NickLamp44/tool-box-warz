@@ -12,6 +12,7 @@ import {
   Avatar,
   IconButton,
   Typography,
+  Chip,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
@@ -24,10 +25,10 @@ export default function BlogCard({ blog }) {
 
   const getInitials = (name) =>
     name
-      .split(" ")
+      ?.split(" ")
       .map((word) => word[0])
       .join("")
-      .toUpperCase();
+      .toUpperCase() || "??";
 
   const handleFavoriteClick = (e) => {
     e.preventDefault();
@@ -42,12 +43,57 @@ export default function BlogCard({ blog }) {
     console.log("Shared:", blog.title);
   };
 
+  // Format date properly
+  const formatDate = (date) => {
+    if (!date) return "";
+
+    // Handle different date formats
+    if (date.toDate && typeof date.toDate === "function") {
+      return date.toDate().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+
+    if (date instanceof Date) {
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+
+    // Handle string dates
+    if (typeof date === "string") {
+      return new Date(date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+
+    return date;
+  };
+
+  // Get preview text from subtitle or first content section
+  const getPreviewText = () => {
+    if (blog.subtitle) return blog.subtitle;
+    if (blog.content && blog.content.length > 0) {
+      const firstSection = blog.content[0];
+      if (firstSection.content) {
+        return firstSection.content.substring(0, 150) + "...";
+      }
+    }
+    return "Read more about this article...";
+  };
+
   return (
     <Link to={`/blog/${blog.id}`} style={{ textDecoration: "none" }}>
       <Card
         sx={{
           width: { xs: "100%", sm: 300, md: 345 },
-          height: 420,
+          height: 480,
           display: "flex",
           flexDirection: "column",
           padding: 2,
@@ -68,7 +114,7 @@ export default function BlogCard({ blog }) {
           },
         }}
       >
-        {/* Image with Hover Effect */}
+        {/* Hero Image */}
         <Box
           sx={{
             position: "relative",
@@ -79,8 +125,10 @@ export default function BlogCard({ blog }) {
         >
           <CardMedia
             component="img"
-            image={blog.image}
-            alt={blog.title}
+            image={
+              blog.heroImage?.src || "/placeholder.svg?height=160&width=345"
+            }
+            alt={blog.heroImage?.alt || blog.title}
             className="blog-image"
             sx={{
               width: "100%",
@@ -90,7 +138,7 @@ export default function BlogCard({ blog }) {
             }}
           />
 
-          {/* Subtle overlay on hover */}
+          {/* Overlay on hover */}
           <Box
             sx={{
               position: "absolute",
@@ -125,7 +173,7 @@ export default function BlogCard({ blog }) {
               }}
               aria-label="author"
             >
-              {getInitials(blog.author)}
+              {getInitials(blog.authorName)}
             </Avatar>
           }
           title={
@@ -162,7 +210,7 @@ export default function BlogCard({ blog }) {
                 mt: 0.5,
               }}
             >
-              {blog.date}
+              {formatDate(blog.publishedDate)}
             </Typography>
           }
           sx={{
@@ -171,7 +219,7 @@ export default function BlogCard({ blog }) {
             alignItems: "flex-start",
             "& .MuiCardHeader-content": {
               overflow: "hidden",
-              minWidth: 0, // Allows text to shrink
+              minWidth: 0,
             },
           }}
         />
@@ -186,20 +234,35 @@ export default function BlogCard({ blog }) {
             flexDirection: "column",
           }}
         >
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{
-              display: "-webkit-box",
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-              lineHeight: 1.5,
-              fontSize: "0.875rem",
-            }}
-          >
-            {blog.previewText}
-          </Typography>
+          {/* Tags */}
+          {blog.tags && blog.tags.length > 0 && (
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1 }}>
+              {blog.tags.slice(0, 3).map((tag) => (
+                <Chip
+                  key={tag}
+                  label={tag}
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    fontSize: "0.75rem",
+                    height: "24px",
+                  }}
+                />
+              ))}
+              {blog.tags.length > 3 && (
+                <Chip
+                  label={`+${blog.tags.length - 3}`}
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    fontSize: "0.75rem",
+                    height: "24px",
+                  }}
+                />
+              )}
+            </Box>
+          )}
+
           <Box sx={{ flexGrow: 1 }} />
         </CardContent>
 
@@ -243,10 +306,8 @@ export default function BlogCard({ blog }) {
             <ShareIcon />
           </IconButton>
 
-          {/* Spacer to push content */}
           <Box sx={{ flexGrow: 1 }} />
 
-          {/* Optional: Add a subtle indicator for more content */}
           <Typography
             variant="caption"
             sx={{

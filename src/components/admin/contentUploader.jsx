@@ -6,6 +6,20 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../services/firebase";
 import { parseContent } from "../../util/parseContent";
 
+
+function cleanObject(obj) {
+  if (Array.isArray(obj)) {
+    return obj.map(cleanObject).filter((v) => v !== undefined && v !== null);
+  } else if (obj && typeof obj === "object") {
+    return Object.fromEntries(
+      Object.entries(obj)
+        .filter(([_, v]) => v !== undefined && v !== null)
+        .map(([k, v]) => [k, cleanObject(v)])
+    );
+  }
+  return obj;
+}
+
 export default function ContentUploader() {
   const [markdownFile, setMarkdownFile] = useState(null);
   const [mediaFiles, setMediaFiles] = useState([]);
@@ -16,25 +30,26 @@ export default function ContentUploader() {
 
   const handleUpload = async () => {
     if (!markdownFile) {
-      setStatus("No markdown file selected.");
+      setStatus("❌ No markdown file selected.");
       return;
     }
 
     const targetCollection = customCollection.trim() || collectionName;
-
     if (!targetCollection) {
-      setStatus("No target collection selected.");
+      setStatus("❌ No target collection selected.");
       return;
     }
 
-    setStatus("Parsing and uploading...");
+    setStatus("⏳ Parsing and uploading...");
 
     try {
+      // ✅ Parse markdown front matter and body
       const fileText = await markdownFile.text();
       const parsed = frontMatter(fileText);
       const data = parsed.attributes;
       const content = parseContent(parsed.body);
 
+      // ✅ Upload any additional media files
       const storage = getStorage();
       const uploadedMedia = await Promise.all(
         mediaFiles.map(async (file) => {
@@ -45,12 +60,12 @@ export default function ContentUploader() {
         })
       );
 
-      const mainDoc = {
+      // ✅ Prepare blog document
+      let mainDoc = {
         title: data.title || "Untitled",
         subtitle: data.subtitle || "",
         authorName: data.authorName || "Unknown",
         publishedDate: data.publishedDate || null,
-        createdAt: new Date(data.createdAt || data.publishedDate || Date.now()),
         tags: data.tags || [],
         heroImage: data.heroImage || {},
         videos: videoLinks.filter((link) => link.trim() !== ""),
@@ -59,22 +74,27 @@ export default function ContentUploader() {
         publishedAt: serverTimestamp(),
       };
 
+      // ✅ Remove undefined/null recursively
+      mainDoc = cleanObject(mainDoc);
+
+      // ✅ Upload main blog document
       const docRef = await addDoc(collection(db, targetCollection), mainDoc);
 
+      // ✅ Optional: Upload sections separately (if provided in front matter)
       if (Array.isArray(data.sections)) {
         const sectionPromises = data.sections.map((section) =>
           addDoc(
             collection(db, targetCollection, docRef.id, "sections"),
-            section
+            cleanObject(section)
           )
         );
         await Promise.all(sectionPromises);
       }
 
-      setStatus(`Content uploaded to "${targetCollection}" successfully!`);
+      setStatus(`✅ Content uploaded to "${targetCollection}" successfully!`);
     } catch (err) {
-      console.error(err);
-      setStatus("Failed to upload content.");
+      console.error("❌ Upload failed:", err);
+      setStatus(`❌ Failed to upload content: ${err.message}`);
     }
   };
 

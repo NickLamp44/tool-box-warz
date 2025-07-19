@@ -162,7 +162,11 @@ export default function ShowCaseCard({ showcase }) {
                 mt: 0.5,
               }}
             >
-              {showcase.date}
+              {showcase.date?.toDate?.().toLocaleString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
             </Typography>
           }
           sx={{
