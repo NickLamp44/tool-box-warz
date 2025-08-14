@@ -1,281 +1,273 @@
-export function parseContent(body) {
-  if (!body || typeof body !== "string") return [];
+export function parseContent(body, mediaMap = new Map()) {
+  if (!body || typeof body !== "string") return []
 
-  console.log("Raw body for parsing:", body); // Debug log
+  const fullContent = []
+  let currentSection = null // Represents a content unit with # or ## heading
+  let currentSubSubSection = null // Represents a content unit with ### heading
+  let activeParentSection = null // This will point to the most recent H1 or H2 section for subSections nesting
 
-  // Split content by --- but preserve the structure
-  const sections = body.split(/\n---\n/).filter((section) => section.trim());
+  // Helper to create a new content unit object
+  const createContentUnit = (sectionType, heading, title) => ({
+    section: sectionType,
+    heading: heading, 
+    title: title,
+    text: [], // Initialized as an empty array
+    subSections: [], // This will store titles of nested sections
+    images: [], // Stores image IDs
+    videos: [], // Stores video IDs
+  })
 
-  return sections
-    .map((sectionText, index) => {
-      const currentSection = {
-        type: "section",
-        title: "",
-        content: "",
-        images: [],
-        subsections: [],
-      };
-
-      let remainingContent = sectionText.trim();
-
-      // 1. Extract Type (if present, usually at the very beginning)
-      const typeMatch = remainingContent.match(/^type:\s*"([^"]+)"/m);
-      if (typeMatch) {
-        currentSection.type = typeMatch[1];
-        remainingContent = remainingContent.replace(typeMatch[0], "").trim();
+  // Helper to add text to the current active unit
+  const addTextToCurrentUnit = (line) => {
+    if (currentSubSubSection) {
+      currentSubSubSection.text.push(line)
+    } else if (currentSection) {
+      currentSection.text.push(line)
+    } else {
+      // This handles the initial intro text before any headings
+      if (fullContent.length === 0 || fullContent[0].section !== "Intro") {
+        fullContent.unshift(createContentUnit("Intro", null, null)) // Add to beginning
       }
+      fullContent[0].text.push(line)
+    }
+  }
 
-      // 2. Extract Main Title (## or # heading)
-      const titleMatch = remainingContent.match(/^#{1,2}\s+(.+)$/m);
-      if (titleMatch) {
-        currentSection.title = titleMatch[1].trim();
-        remainingContent = remainingContent.replace(titleMatch[0], "").trim();
-      }
-
-      // 3. Process Images and remove them from content
-      // Use a temporary array to store lines that are NOT images
-      const linesAfterTitleAndType = remainingContent.split("\n");
-      const nonImageLines = [];
-
-      linesAfterTitleAndType.forEach((line) => {
-        const customImageMatch = line.match(
-          /Image\s*:\s*\n\s*alt\s+"([^"]+)"\s*\n\s*(gs:\/\/[^\s\n]+)/
-        );
-        const markdownImageMatch = line.match(/!\[([^\]]*)\]$$([^)]+)$$/); // Corrected regex
-
-        if (customImageMatch) {
-          currentSection.images.push({
-            src: customImageMatch[2],
-            alt: customImageMatch[1],
-          });
-        } else if (markdownImageMatch) {
-          currentSection.images.push({
-            src: markdownImageMatch[2],
-            alt: markdownImageMatch[1],
-          });
-        } else {
-          nonImageLines.push(line);
+  // Helper to add media ID to the current active unit
+  const addMediaToCurrentUnit = (mediaId, mediaType) => {
+    const mediaItem = mediaMap.get(mediaId)
+    if (mediaItem) {
+      if (currentSubSubSection) {
+        if (mediaType === "image") currentSubSubSection.images.push(mediaId)
+        else if (mediaType === "video") currentSubSubSection.videos.push(mediaId)
+      } else if (currentSection) {
+        if (mediaType === "image") currentSection.images.push(mediaId)
+        else if (mediaType === "video") currentSection.videos.push(mediaId)
+      } else {
+        // For intro section media
+        if (fullContent.length === 0 || fullContent[0].section !== "Intro") {
+          fullContent.unshift(createContentUnit("Intro", null, null))
         }
-      });
-
-      remainingContent = nonImageLines.join("\n").trim();
-
-      // 4. Process Subsections and remove them from content
-      const tempSubsections = [];
-      // Regex to find ### headings and their content until another heading or end of section
-      const subsectionRegex =
-        /^###\s+(.+?)$([\s\S]*?)(?=\n(?:###|##|#|---|$))/gm;
-      const lastIndex = 0;
-      let match;
-
-      // Collect all subsection matches and their start/end indices
-      const subsectionRanges = [];
-      while ((match = subsectionRegex.exec(remainingContent)) !== null) {
-        subsectionRanges.push({
-          match: match,
-          start: match.index,
-          end: match.index + match[0].length,
-        });
+        if (mediaType === "image") fullContent[0].images.push(mediaId)
+        else if (mediaType === "video") fullContent[0].videos.push(mediaId)
       }
+    } else {
+      console.warn(`Media with ID "${mediaId}" (${mediaType}) not found in mediaMap.`)
+    }
+  }
 
-      // Reconstruct main content by taking parts *between* subsections
-      const mainContentParts = [];
-      let currentContentStart = 0;
-
-      subsectionRanges.forEach((subInfo) => {
-        // Add content before this subsection
-        const contentBeforeSub = remainingContent
-          .substring(currentContentStart, subInfo.start)
-          .trim();
-        if (contentBeforeSub) {
-          mainContentParts.push(contentBeforeSub);
-        }
-
-        const subsectionTitle = subInfo.match[1].trim();
-        const subsectionBody = subInfo.match[2].trim();
-
-        const subImages = [];
-        const subBodyLines = subsectionBody.split("\n");
-        const subNonImageLines = [];
-
-        subBodyLines.forEach((subLine) => {
-          const subCustomImageMatch = subLine.match(
-            /Image\s*:\s*\n\s*alt\s+"([^"]+)"\s*\n\s*(gs:\/\/[^\s\n]+)/
-          );
-          const subMarkdownImageMatch = subLine.match(
-            /!\[([^\]]*)\]$$([^)]+)$$/
-          ); // Corrected regex
-
-          if (subCustomImageMatch) {
-            subImages.push({
-              src: subCustomImageMatch[2],
-              alt: subCustomImageMatch[1],
-            });
-          } else if (subMarkdownImageMatch) {
-            subImages.push({
-              src: subMarkdownImageMatch[2],
-              alt: subMarkdownImageMatch[1],
-            });
-          } else {
-            subNonImageLines.push(subLine);
-          }
-        });
-
-        tempSubsections.push({
-          title: subsectionTitle,
-          content: subNonImageLines.join("\n").trim(),
-          ...(subImages.length > 0 && { images: subImages }),
-        });
-
-        currentContentStart = subInfo.end;
-      });
-
-      // Add any remaining content after the last subsection
-      const contentAfterLastSub = remainingContent
-        .substring(currentContentStart)
-        .trim();
-      if (contentAfterLastSub) {
-        mainContentParts.push(contentAfterLastSub);
-      }
-
-      currentSection.content = mainContentParts.join("\n\n").trim(); // Join with double newline for paragraphs
-      currentSection.subsections = tempSubsections;
-
-      console.log(`Section ${index} result:`, currentSection); // Debug log
-      return currentSection;
-    })
-    .filter(Boolean);
-}
-
-// Helper function to parse frontmatter - updated to handle both formats
-export function parseFrontmatter(content) {
-  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!frontmatterMatch) return { frontmatter: {}, body: content };
-
-  const frontmatterText = frontmatterMatch[1];
-  const body = content.replace(/^---\n[\s\S]*?\n---\n/, "");
-
-  const frontmatter = {};
-  const lines = frontmatterText.split("\n");
-
-  let currentKey = null;
-  let currentObject = null;
+  const lines = body.split("\n")
 
   lines.forEach((line) => {
-    const trimmed = line.trim();
-    if (!trimmed) return;
+    const trimmedLine = line.trim()
 
-    if (
-      trimmed.endsWith(":") &&
-      !trimmed.includes('"') &&
-      !trimmed.includes("[")
-    ) {
-      currentKey = trimmed.slice(0, -1);
-      currentObject = {};
-      frontmatter[currentKey] = currentObject;
-    } else if (currentObject && trimmed.startsWith("src:")) {
-      currentObject.src = trimmed.match(/src:\s*"([^"]+)"/)?.[1] || "";
-    } else if (currentObject && trimmed.startsWith("alt:")) {
-      currentObject.alt = trimmed.match(/alt:\s*"([^"]+)"/)?.[1] || "";
+    if (trimmedLine === "---") {
+      // This marks a logical break. Reset current pointers.
+      // Sections are already pushed to fullContent when their headings are processed.
+      currentSubSubSection = null
+      currentSection = null
+      activeParentSection = null // Reset active parent
+      return
+    }
+
+    const h1Match = trimmedLine.match(/^#\s+(.+)$/)
+    const h2Match = trimmedLine.match(/^##\s+(.+)$/)
+    const h3Match = trimmedLine.match(/^###\s+(.+)$/) 
+    const imageIdMatch = trimmedLine.match(/^imageID:\s*"([^"]+)"$/)
+    const videoIdMatch = trimmedLine.match(/^videoID:\s*"([^"]+)"$/)
+
+    if (h1Match) {
+      // Reset all pointers when a new H1 starts
+      currentSubSubSection = null
+      currentSection = null
+      activeParentSection = null
+
+      const newH1Section = createContentUnit("Main", "h1", h1Match[1].trim())
+      fullContent.push(newH1Section)
+      activeParentSection = newH1Section // H1 becomes the new active parent for subsequent H2s
+      currentSection = newH1Section // H1 also becomes the currentSection for text/media
+    } else if (h2Match) {
+      // Reset sub-sub-section pointer
+      currentSubSubSection = null
+
+      const newH2Section = createContentUnit("subSection", "h2", h2Match[1].trim())
+      fullContent.push(newH2Section)
+
+      // Add H2 title to the subSections of the current active H1 section
+      if (activeParentSection && activeParentSection.heading === "h1") {
+        activeParentSection.subSections.push(newH2Section.title)
+      } else {
+        console.warn(`H2 heading "${newH2Section.title}" found without an active H1 parent.`)
+      }
+
+      activeParentSection = newH2Section // H2 becomes the new active parent for subsequent H3s
+      currentSection = newH2Section // H2 also becomes the currentSection for text/media
+    } else if (h3Match) {
+      // Changed from h4Match to h3Match
+      // Reset sub-sub-section pointer
+      currentSubSubSection = null
+
+      const newH3Section = createContentUnit("subSubSection", "h3", h3Match[1].trim()) // Changed from newH4Section to newH3Section
+      fullContent.push(newH3Section)
+
+      // Add H3 title to the subSections of the current active H1/H2 section
+      if (activeParentSection) {
+        activeParentSection.subSections.push(newH3Section.title)
+      } else {
+        console.warn(
+          `H3 heading "${newH3Section.title}" found without an active H1 or H2 parent. It will be treated as a top-level section.`,
+        )
+      }
+      currentSubSubSection = newH3Section // H3 becomes the currentSubSubSection for text/media
+      // activeParentSection remains the H1/H2 for the next H2/H1
+    } else if (imageIdMatch) {
+      addMediaToCurrentUnit(imageIdMatch[1], "image")
+    } else if (videoIdMatch) {
+      addMediaToCurrentUnit(videoIdMatch[1], "video")
+    } else if (trimmedLine !== "") {
+      addTextToCurrentUnit(trimmedLine)
+    }
+  })
+
+  // The final cleanup loop for text arrays
+  fullContent.forEach((unit) => {
+    // Ensure unit.text is an array before processing
+    if (Array.isArray(unit.text)) {
+      unit.text = unit.text.filter(Boolean).join("\n\n")
+    } else {
+      // This case should ideally not happen with the current logic,
+      // but as a safeguard, convert non-array text to string.
+      console.warn(`Unit text is not an array for unit:`, unit)
+      unit.text = String(unit.text || "") // Convert to string if it's not an array
+    }
+  })
+
+  console.log("Parsed fullContent:", fullContent)
+  return fullContent
+}
+
+// Helper function to parse frontmatter
+export function parseFrontmatter(content) {
+  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/)
+  if (!frontmatterMatch) return { frontmatter: {}, body: content }
+
+  const frontmatterText = frontmatterMatch[1]
+  const body = content.replace(/^---\n[\s\S]*?\n---\n/, "")
+
+  const frontmatter = {}
+  const lines = frontmatterText.split("\n")
+
+  let currentKey = null
+  let currentObject = null
+  let inVisualContentArray = false
+  let currentVisualContentItem = null
+
+  lines.forEach((line) => {
+    const trimmed = line.trim()
+    if (!trimmed) return
+
+    if (trimmed.startsWith("visualContent:")) {
+      inVisualContentArray = true
+      frontmatter.visualContent = []
+      return
+    }
+
+    if (inVisualContentArray) {
+      if (trimmed.startsWith("-")) {
+        currentVisualContentItem = {}
+        frontmatter.visualContent.push(currentVisualContentItem)
+      } else if (currentVisualContentItem && trimmed.includes(":")) {
+        const [key, ...valueParts] = trimmed.split(":")
+        let value = valueParts.join(":").trim()
+        if (value.startsWith('"') && value.endsWith('"')) {
+          value = value.slice(1, -1)
+        }
+        currentVisualContentItem[key.trim()] = value
+      }
+      return
+    }
+
+    if (trimmed.endsWith(":") && !trimmed.includes('"') && !trimmed.includes("[")) {
+      currentKey = trimmed.slice(0, -1)
+      currentObject = {}
+      frontmatter[currentKey] = currentObject
+    } else if (currentObject && trimmed.includes(":")) {
+      const [key, ...valueParts] = trimmed.split(":")
+      let value = valueParts.join(":").trim()
+      if (value.startsWith('"') && value.endsWith('"')) {
+        value = value.slice(1, -1)
+      }
+      currentObject[key.trim()] = value
     } else if (trimmed.includes(":")) {
-      const [key, ...valueParts] = trimmed.split(":");
-      let value = valueParts.join(":").trim();
+      const [key, ...valueParts] = trimmed.split(":")
+      let value = valueParts.join(":").trim()
 
       if (value.startsWith('"') && value.endsWith('"')) {
-        value = value.slice(1, -1);
+        value = value.slice(1, -1)
       }
 
       if (value.startsWith("[") && value.endsWith("]")) {
         value = value
           .slice(1, -1)
           .split(",")
-          .map((item) => item.trim().replace(/"/g, ""));
+          .map((item) => item.trim().replace(/"/g, ""))
       }
 
       if (key.trim().includes("Date")) {
-        value = new Date(value);
+        value = new Date(value)
       }
 
-      // Handle new heroImage format where src and alt are separate top-level keys
-      if (key.trim() === "heroImage" && typeof value === "string") {
-        frontmatter.heroImage = {
-          src: value,
-          alt: frontmatter.heroImageAlt || "", // Use heroImageAlt if already parsed
-        };
-      } else if (key.trim() === "heroImageAlt") {
-        if (frontmatter.heroImage) {
-          frontmatter.heroImage.alt = value;
-        } else {
-          // Store temporarily if heroImage hasn't been processed yet
-          frontmatter.heroImageAlt = value;
-        }
-      } else {
-        frontmatter[key.trim()] = value;
-      }
-
-      currentObject = null;
+      frontmatter[key.trim()] = value
+      currentObject = null
     }
-  });
+  })
 
-  // Finalize heroImage if heroImageAlt was processed first
-  if (frontmatter.heroImageAlt && !frontmatter.heroImage) {
-    frontmatter.heroImage = {
-      src: "", // Placeholder, should be set by heroImage key
-      alt: frontmatter.heroImageAlt,
-    };
-  }
-  delete frontmatter.heroImageAlt; // Clean up temporary field
-
-  return { frontmatter, body };
+  return { frontmatter, body }
 }
 
 // Helper function to convert Firebase Storage paths to full URLs
-// This function should be called AFTER parsing and BEFORE saving to Firestore
-// It converts relative paths (e.g., "PrivateerToolBox/ProToolBoxCheck_1.webp")
-// to gs:// URLs (e.g., "gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/PrivateerToolBox/ProToolBoxCheck_1.webp")
-export function processFirebaseImages(blogData) {
-  if (!blogData) return blogData;
+export function processFirebaseMedia(blogData) {
+  if (!blogData) return blogData
 
-  const BASE_STORAGE_URL =
-    "gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/";
+  const BASE_IMAGE_STORAGE_URL = "gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/"
+  const BASE_VIDEO_STORAGE_URL = "gs://toolboxwars-d5bd0.firebasestorage.app/videos/blogs/"
 
-  const processPath = (path) => {
+  const processPath = (path, type) => {
     if (path.startsWith("gs://") || path.startsWith("http")) {
-      return path;
+      return path
     }
-    return `${BASE_STORAGE_URL}${path}`;
-  };
+    if (type === "image") {
+      return `${BASE_IMAGE_STORAGE_URL}${path}`
+    }
+    if (type === "video") {
+      return `${BASE_VIDEO_STORAGE_URL}${path}`
+    }
+    return path
+  }
 
   // Process heroImage
   if (blogData.heroImage) {
     if (typeof blogData.heroImage.src === "string") {
-      blogData.heroImage.src = processPath(blogData.heroImage.src);
+      blogData.heroImage.src = processPath(blogData.heroImage.src, "image")
     } else if (typeof blogData.heroImage === "string") {
-      // Handle case where heroImage is just a string path
       blogData.heroImage = {
-        src: processPath(blogData.heroImage),
+        src: processPath(blogData.heroImage, "image"),
         alt: blogData.heroImageAlt || blogData.title || "",
-      };
+      }
     }
   }
 
-  // Process images in content sections and subsections
-  if (Array.isArray(blogData.content)) {
-    blogData.content = blogData.content.map((section) => ({
-      ...section,
-      images: section.images?.map((img) => ({
-        ...img,
-        src: processPath(img.src),
-      })),
-      subsections: section.subsections?.map((sub) => ({
-        ...sub,
-        images: sub.images?.map((img) => ({
-          ...img,
-          src: processPath(img.src),
-        })),
-      })),
-    }));
+  // Process visualContent array (which contains both images and videos)
+  if (Array.isArray(blogData.visualContent)) {
+    blogData.visualContent = blogData.visualContent.map((item) => {
+      if (item.src) {
+        return {
+          ...item,
+          src: processPath(item.src, item.type), // Use item.type to determine base URL
+        }
+      }
+      return item
+    })
   }
 
-  return blogData;
+  return blogData
 }
