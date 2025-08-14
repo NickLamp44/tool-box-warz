@@ -43,7 +43,7 @@ export default function BlogCard({ blog }) {
   };
 
   return (
-    <Link to={`/blogs/${blog.id}`} style={{ textDecoration: "none" }}>
+    <Link to={`/blog/${blog.id}`} style={{ textDecoration: "none" }}>
       <Card
         sx={{
           width: { xs: "100%", sm: 300, md: 345 },
