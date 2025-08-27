@@ -9,6 +9,7 @@ import Footer from "./components/generic/footer";
 import SignIn from "./components/uam/login";
 import SignUp from "./components/uam/signup";
 import BlogArticle from "./components/content/blog/blog";
+import Blog from "./components/content/blog/blogWP";
 import ShowCaseArticle from "./components/content/showCase/showCase";
 import MerchItem from "./components/store/merchItem";
 
@@ -47,6 +48,7 @@ function App() {
               {/* Blogs + showCASE */}
               <Route path="/blogs" element={<Blogs />} />
               <Route path="/blog/:blogId" element={<BlogArticle />} />
+              <Route path="/blog" element={<Blog />} />
               <Route path="/showcases" element={<ShowCase />} />
               <Route
                 path="/showcase/:showCaseId"
