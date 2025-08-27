@@ -42,8 +42,10 @@ export default function BlogCard({ blog }) {
     console.log("Shared:", blog.title);
   };
 
+  const blogLink = blog.slug ? `/blog/${blog.slug}` : `/blog/${blog.id}`;
+
   return (
-    <Link to={`/blog/${blog.id}`} style={{ textDecoration: "none" }}>
+    <Link to={blogLink} style={{ textDecoration: "none" }}>
       <Card
         sx={{
           width: { xs: "100%", sm: 300, md: 345 },
@@ -162,11 +164,17 @@ export default function BlogCard({ blog }) {
                 mt: 0.5,
               }}
             >
-              {blog.date?.toDate?.().toLocaleString("en-US", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              })}
+              {blog.date instanceof Date
+                ? blog.date.toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
+                : new Date(blog.date).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
             </Typography>
           }
           sx={{
@@ -175,7 +183,7 @@ export default function BlogCard({ blog }) {
             alignItems: "flex-start",
             "& .MuiCardHeader-content": {
               overflow: "hidden",
-              minWidth: 0, // Allows text to shrink
+              minWidth: 0,
             },
           }}
         />
@@ -247,10 +255,8 @@ export default function BlogCard({ blog }) {
             <ShareIcon />
           </IconButton>
 
-          {/* Spacer to push content */}
           <Box sx={{ flexGrow: 1 }} />
 
-          {/* Optional: Add a subtle indicator for more content */}
           <Typography
             variant="caption"
             sx={{

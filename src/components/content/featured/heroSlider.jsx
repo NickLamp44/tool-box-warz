@@ -1,10 +1,10 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import Carousel from "react-bootstrap/Carousel";
 import Badge from "react-bootstrap/Badge";
 import Typography from "@mui/material/Typography";
 import { Link } from "react-router-dom";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../../services/firebase";
 
 export default function HeroCarousel() {
   const [index, setIndex] = useState(0);
@@ -15,14 +15,65 @@ export default function HeroCarousel() {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const snapshot = await getDocs(collection(db, "blogs"));
-        const blogs = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
+        const wpUrl = process.env.REACT_APP_WORDPRESS_URL;
+
+        if (!wpUrl) {
+          console.error("[v0] WordPress URL not configured");
+          return;
+        }
+
+        console.log(
+          "[v0] Fetching hero slider blogs from:",
+          `${wpUrl}/posts?per_page=5&_embed`
+        );
+        const response = await fetch(`${wpUrl}/posts?per_page=5&_embed`);
+
+        if (!response.ok) {
+          console.log(
+            "[v0] Hero slider response not OK:",
+            response.status,
+            response.statusText
+          );
+          throw new Error(`Hero slider API returned ${response.status}`);
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          const responseText = await response.text();
+          console.log(
+            "[v0] Hero slider response is not JSON:",
+            responseText.substring(0, 200)
+          );
+          throw new Error("Hero slider API returned HTML instead of JSON");
+        }
+
+        const posts = await response.json();
+
+        const blogs = posts.map((post) => ({
+          id: post.id,
+          title: post.title.rendered,
+          authorName: post._embedded?.author?.[0]?.name || "Unknown Author",
+          publishedDate: new Date(post.date).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          heroImage: {
+            src:
+              post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
+              "/blog-hero.png",
+            alt:
+              post._embedded?.["wp:featuredmedia"]?.[0]?.alt_text ||
+              post.title.rendered,
+          },
+          tags:
+            post._embedded?.["wp:term"]?.[0]?.map((term) => term.name) || [],
+          slug: post.slug,
         }));
+
         setBlogSlides(blogs);
       } catch (error) {
-        console.error("Error fetching blog data:", error);
+        console.error("Error fetching WordPress blog data:", error);
       }
     };
 
@@ -31,7 +82,7 @@ export default function HeroCarousel() {
 
   return (
     <>
-      <style jsx>{`
+      <style>{`
         @media (max-width: 768px) {
           .hero-title {
             font-size: 1.75rem !important;
@@ -61,7 +112,7 @@ export default function HeroCarousel() {
           {blogSlides.map((slide, idx) => (
             <Carousel.Item key={idx}>
               <Link
-                to={`/blog/${slide.id}`}
+                to={`/blog/${slide.slug || slide.id}`}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <section
@@ -98,13 +149,13 @@ export default function HeroCarousel() {
                       {slide.title}
                     </Typography>
                     <Typography variant="subtitle1" className="hero-subtitle">
-                      By {slide.authorName || slide.author}
+                      By {slide.authorName}
                     </Typography>
                     <Typography
                       variant="subtitle2"
                       className="text-light hero-date"
                     >
-                      {slide.publishedDate || slide.date}
+                      {slide.publishedDate}
                     </Typography>
                     <div className="mt-2">
                       {slide.tags?.map((tag, i) => (

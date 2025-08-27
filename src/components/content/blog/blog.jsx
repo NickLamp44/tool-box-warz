@@ -2,30 +2,112 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../../services/firebase";
 
-export default function BlogArticle() {
-  const { blogId } = useParams();
+export default function BlogWPArticle() {
+  const { blogId } = useParams(); // This could be slug or ID
   const [blog, setBlog] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const blogRef = doc(db, "blogs", blogId);
-        const blogSnap = await getDoc(blogRef);
-        if (blogSnap.exists()) {
-          setBlog(blogSnap.data());
-        } else {
-          setError("Blog not found");
+        const wpUrl = process.env.REACT_APP_WORDPRESS_URL;
+
+        if (!wpUrl) {
+          setError(
+            "WordPress URL not configured. Please set REACT_APP_WORDPRESS_URL in your environment variables."
+          );
+          return;
         }
+
+        let url;
+        if (isNaN(blogId)) {
+          // It's a slug
+          url = `${wpUrl}/wp-json/wp/v2/posts?slug=${blogId}&_embed`;
+        } else {
+          // It's an ID
+          url = `${wpUrl}/wp-json/wp/v2/posts/${blogId}?_embed`;
+        }
+
+        console.log("[v0] Fetching blog from:", url);
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          console.log(
+            "[v0] Blog response not OK:",
+            response.status,
+            response.statusText
+          );
+          throw new Error(`Blog API returned ${response.status}`);
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          const responseText = await response.text();
+          console.log(
+            "[v0] Blog response is not JSON:",
+            responseText.substring(0, 200)
+          );
+          throw new Error(
+            "Blog API returned HTML instead of JSON - check your WordPress URL"
+          );
+        }
+
+        const data = await response.json();
+        const post = Array.isArray(data) ? data[0] : data;
+
+        if (!post) {
+          setError("Blog not found");
+          return;
+        }
+
+        const blogData = {
+          title: post.title.rendered,
+          authorName: post._embedded?.author?.[0]?.name || "Unknown Author",
+          publishedDate: new Date(post.date).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          heroImage: {
+            src:
+              post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
+              "/blog-hero.png",
+            alt:
+              post._embedded?.["wp:featuredmedia"]?.[0]?.alt_text ||
+              post.title.rendered,
+          },
+          tags:
+            post._embedded?.["wp:term"]?.[0]?.map((term) => term.name) || [],
+          subtitle: post.excerpt.rendered.replace(/<[^>]*>/g, ""),
+          content: [
+            {
+              text: post.content.rendered,
+              paragraphs: [],
+            },
+          ],
+        };
+
+        setBlog(blogData);
       } catch (err) {
-        setError("Failed to fetch Blog");
+        console.error("Error fetching WordPress blog:", err);
+        setError("Failed to fetch blog");
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchBlog();
   }, [blogId]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -38,7 +120,7 @@ export default function BlogArticle() {
   if (!blog) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <p>Loading...</p>
+        <p>Blog not found</p>
       </div>
     );
   }
@@ -49,10 +131,7 @@ export default function BlogArticle() {
       <section className="relative mb-8">
         <div className="relative h-96 rounded-lg overflow-hidden">
           <img
-            src={
-              blog.heroImage?.src ||
-              "/placeholder.svg?height=400&width=800&query=blog hero image"
-            }
+            src={blog.heroImage?.src || "/placeholder.svg"}
             alt={blog.heroImage?.alt || "Blog Image"}
             className="w-full h-full object-cover"
           />
@@ -89,128 +168,52 @@ export default function BlogArticle() {
       )}
 
       {/* Blog Content */}
-      {blog.content && Array.isArray(blog.content) && (
-        <div className="prose prose-lg max-w-none">
-          {blog.content.map((section, index) => (
-            <section key={index} className="mb-8">
-              {/* Section Heading */}
-              {section.heading && section.title && (
-                <div className="mb-6">
-                  {section.heading === "h1" && (
-                    <h1 className="text-3xl md:text-4xl font-bold mb-4">
-                      {section.title}
-                    </h1>
-                  )}
-                  {section.heading === "h2" && (
-                    <h2 className="text-2xl md:text-3xl font-semibold mb-4">
-                      {section.title}
-                    </h2>
-                  )}
-                  {section.heading === "h3" && (
-                    <h3 className="text-xl md:text-2xl font-medium mb-4">
-                      {section.title}
-                    </h3>
-                  )}
-                </div>
-              )}
+      <div className="prose prose-lg max-w-none">
+        <div
+          dangerouslySetInnerHTML={{ __html: blog.content[0].text }}
+          className="wordpress-content"
+        />
+      </div>
 
-              {/* Section Text Content */}
-              {section.paragraphs && section.paragraphs.length > 0 && (
-                <div className="mb-6">
-                  {section.paragraphs.map((paragraph, i) => (
-                    <p key={i} className="mb-4 text-lg leading-relaxed">
-                      {paragraph.text || paragraph}
-                    </p>
-                  ))}
-                </div>
-              )}
-
-              {/* Fallback for text field if paragraphs don't exist */}
-              {(!section.paragraphs || section.paragraphs.length === 0) &&
-                section.text && (
-                  <div className="mb-6">
-                    {section.text.split("\n\n").map((paragraph, i) => (
-                      <p key={i} className="mb-4 text-lg leading-relaxed">
-                        {paragraph.trim()}
-                      </p>
-                    ))}
-                  </div>
-                )}
-
-              {/* Section Images */}
-              {section.images && section.images.length > 0 && (
-                <div className="mb-6">
-                  {section.images.length === 1 ? (
-                    <img
-                      src={
-                        section.images[0].src ||
-                        "/placeholder.svg?height=400&width=600&query=blog section image"
-                      }
-                      alt={section.images[0].alt || "Section image"}
-                      className="w-full rounded-lg shadow-lg"
-                    />
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {section.images.map((img, i) => (
-                        <img
-                          key={i}
-                          src={
-                            img.src ||
-                            "/placeholder.svg?height=300&width=400&query=blog section image"
-                          }
-                          alt={img.alt || `Section image ${i + 1}`}
-                          className="w-full rounded-lg shadow-lg"
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Section Videos */}
-              {section.videos && section.videos.length > 0 && (
-                <div className="mb-6">
-                  {section.videos.map((video, i) => (
-                    <div key={i} className="mb-4">
-                      <video
-                        src={video.src || video}
-                        controls
-                        className="w-full rounded-lg shadow-lg"
-                      >
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Add divider between sections except for the last one */}
-              {index < blog.content.length - 1 && (
-                <hr className="border-border my-8" />
-              )}
-            </section>
-          ))}
-        </div>
-      )}
-
-      {/* Additional Videos from blog.videos if they exist */}
-      {blog.videos && blog.videos.length > 0 && (
-        <section className="mt-12">
-          <h2 className="text-2xl font-semibold mb-6">Related Videos</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {blog.videos.map((videoUrl, index) => (
-              <div key={index} className="aspect-video">
-                <iframe
-                  src={videoUrl}
-                  title={`Video ${index + 1}`}
-                  className="w-full h-full rounded-lg"
-                  allowFullScreen
-                />
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      <style jsx>{`
+        .wordpress-content {
+          line-height: 1.7;
+        }
+        .wordpress-content p {
+          margin-bottom: 1.5rem;
+          font-size: 1.125rem;
+        }
+        .wordpress-content h1,
+        .wordpress-content h2,
+        .wordpress-content h3,
+        .wordpress-content h4,
+        .wordpress-content h5,
+        .wordpress-content h6 {
+          margin-top: 2rem;
+          margin-bottom: 1rem;
+          font-weight: 600;
+        }
+        .wordpress-content img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 0.5rem;
+          margin: 1.5rem 0;
+        }
+        .wordpress-content blockquote {
+          border-left: 4px solid #e5e7eb;
+          padding-left: 1rem;
+          margin: 1.5rem 0;
+          font-style: italic;
+        }
+        .wordpress-content ul,
+        .wordpress-content ol {
+          margin: 1rem 0;
+          padding-left: 2rem;
+        }
+        .wordpress-content li {
+          margin-bottom: 0.5rem;
+        }
+      `}</style>
     </div>
   );
 }
