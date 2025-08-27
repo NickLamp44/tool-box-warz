@@ -21,21 +21,16 @@ export default function Blogs() {
   useEffect(() => {
     const fetchCategoriesAndBlogs = async () => {
       try {
-        const wpUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL;
+        const wpUrl = process.env.REACT_APP_WORDPRESS_URL;
 
         if (!wpUrl) {
           throw new Error(
-            "WordPress URL not configured. Please set NEXT_PUBLIC_WORDPRESS_URL in your environment variables."
+            "WordPress URL not configured. Please set REACT_APP_WORDPRESS_URL in your environment variables."
           );
         }
 
-        console.log(
-          "[v0] Fetching categories from:",
-          `${wpUrl}/wp-json/wp/v2/categories`
-        );
-        const categoriesResponse = await fetch(
-          `${wpUrl}/wp-json/wp/v2/categories`
-        );
+        console.log("[v0] Fetching categories from:", `${wpUrl}/categories`);
+        const categoriesResponse = await fetch(`${wpUrl}/categories`);
 
         if (!categoriesResponse.ok) {
           console.log(
@@ -69,11 +64,9 @@ export default function Blogs() {
 
         console.log(
           "[v0] Fetching posts from:",
-          `${wpUrl}/wp-json/wp/v2/posts?per_page=50&_embed`
+          `${wpUrl}/posts?per_page=50&_embed`
         );
-        const response = await fetch(
-          `${wpUrl}/wp-json/wp/v2/posts?per_page=50&_embed`
-        );
+        const response = await fetch(`${wpUrl}/posts?per_page=50&_embed`);
 
         if (!response.ok) {
           console.log(
@@ -102,20 +95,10 @@ export default function Blogs() {
         const posts = await response.json();
 
         const fetched = posts.map((post) => ({
-          id: post.id,
-          title: post.title.rendered,
-          author: post._embedded?.author?.[0]?.name || "Unknown Author",
-          date: new Date(post.date),
+          ...post, // Pass the entire WordPress post object
           category:
             post._embedded?.["wp:term"]?.[0]?.[0]?.name?.toLowerCase() ||
             "tools",
-          image:
-            post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
-            "/blog-featured-image.png",
-          previewText:
-            post.excerpt.rendered.replace(/<[^>]*>/g, "").substring(0, 150) +
-            "...",
-          slug: post.slug,
         }));
 
         setBlogs(fetched);

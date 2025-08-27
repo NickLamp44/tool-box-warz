@@ -22,27 +22,88 @@ export default function BlogCard({ blog }) {
 
   if (!blog) return null;
 
-  const getInitials = (name) =>
-    name
+  const extractFeaturedImage = (post) => {
+    // Try embedded featured media first
+    const embeddedMedia = post._embedded?.["wp:featuredmedia"]?.[0];
+    if (embeddedMedia && embeddedMedia.source_url && !embeddedMedia.code) {
+      return embeddedMedia.source_url;
+    }
+
+    // Extract first image from post content if embedded media fails
+    if (post.content?.rendered) {
+      const imgMatch = post.content.rendered.match(/<img[^>]+src="([^">]+)"/);
+      if (imgMatch && imgMatch[1]) {
+        return imgMatch[1];
+      }
+    }
+
+    // Fallback to placeholder
+    return "/blog-featured-image.png";
+  };
+
+  const extractAuthorName = (post) => {
+    // Author ID mapping for known authors
+    const authorMap = {
+      268984364: "Nick Lamparelli",
+    };
+
+    // Try embedded author data first
+    const embeddedAuthor = post._embedded?.author?.[0];
+    if (embeddedAuthor && !embeddedAuthor.code) {
+      return (
+        embeddedAuthor.display_name ||
+        embeddedAuthor.name ||
+        embeddedAuthor.slug
+      );
+    }
+
+    // Use author ID mapping
+    if (post.author && authorMap[post.author]) {
+      return authorMap[post.author];
+    }
+
+    return "The Bike Bench";
+  };
+
+  const processedBlog = {
+    ...blog,
+    image: blog.image || extractFeaturedImage(blog),
+    author: blog.author || extractAuthorName(blog),
+    title: blog.title?.rendered || blog.title,
+    previewText:
+      blog.previewText ||
+      blog.excerpt?.rendered?.replace(/<[^>]*>/g, "") ||
+      "Read more about this post...",
+  };
+
+  const getInitials = (name) => {
+    if (!name || typeof name !== "string") {
+      return "TB"; // Default initials for The Bike Bench
+    }
+
+    return name
       .split(" ")
       .map((word) => word[0])
       .join("")
       .toUpperCase();
+  };
 
   const handleFavoriteClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsFavorited(!isFavorited);
-    console.log("Added to favorites:", blog.title);
+    console.log("Added to favorites:", processedBlog.title);
   };
 
   const handleShareClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("Shared:", blog.title);
+    console.log("Shared:", processedBlog.title);
   };
 
-  const blogLink = blog.slug ? `/blog/${blog.slug}` : `/blog/${blog.id}`;
+  const blogLink = processedBlog.slug
+    ? `/blog/${processedBlog.slug}`
+    : `/blog/${processedBlog.id}`;
 
   return (
     <Link to={blogLink} style={{ textDecoration: "none" }}>
@@ -81,8 +142,8 @@ export default function BlogCard({ blog }) {
         >
           <CardMedia
             component="img"
-            image={blog.image}
-            alt={blog.title}
+            image={processedBlog.image}
+            alt={processedBlog.title}
             className="blog-image"
             sx={{
               width: "100%",
@@ -127,7 +188,7 @@ export default function BlogCard({ blog }) {
               }}
               aria-label="author"
             >
-              {getInitials(blog.author)}
+              {getInitials(processedBlog.author)}
             </Avatar>
           }
           title={
@@ -151,7 +212,7 @@ export default function BlogCard({ blog }) {
                 hyphens: "auto",
               }}
             >
-              {blog.title}
+              {processedBlog.title}
             </Typography>
           }
           subheader={
@@ -164,13 +225,13 @@ export default function BlogCard({ blog }) {
                 mt: 0.5,
               }}
             >
-              {blog.date instanceof Date
-                ? blog.date.toLocaleDateString("en-US", {
+              {processedBlog.date instanceof Date
+                ? processedBlog.date.toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "short",
                     day: "numeric",
                   })
-                : new Date(blog.date).toLocaleDateString("en-US", {
+                : new Date(processedBlog.date).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "short",
                     day: "numeric",
@@ -210,7 +271,7 @@ export default function BlogCard({ blog }) {
               fontSize: "0.875rem",
             }}
           >
-            {blog.previewText}
+            {processedBlog.previewText}
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
         </CardContent>

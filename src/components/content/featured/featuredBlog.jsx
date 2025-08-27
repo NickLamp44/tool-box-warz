@@ -57,19 +57,8 @@ export default function FeaturedBlogs() {
         const posts = await response.json();
 
         const fetched = posts.map((post) => ({
-          id: post.id,
-          title: post.title.rendered,
-          author: post._embedded?.author?.[0]?.name || "Unknown Author",
-          date: new Date(post.date),
+          ...post, // Pass the entire WordPress post object
           category: post._embedded?.["wp:term"]?.[0]?.[0]?.name || "Blog",
-          image:
-            post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
-            post.featured_media_url ||
-            "/blog-featured-image.png",
-          previewText:
-            post.excerpt.rendered.replace(/<[^>]*>/g, "").substring(0, 150) +
-            "...",
-          slug: post.slug,
         }));
 
         setBlogs(fetched);
