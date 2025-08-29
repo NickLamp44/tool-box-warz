@@ -26,7 +26,7 @@ import CartModal from "../store/cart/cartModal";
 const pages = [
   { label: "Blogs", path: "/blogs" },
   { label: "ShowCase", path: "/showcases" },
-  { label: "Shop", path: "/shop" },
+  // { label: "Shop", path: "/shop" },
 ];
 
 const settings = ["Profile", "Settings", "Logout"];

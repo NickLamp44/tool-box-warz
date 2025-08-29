@@ -12,10 +12,10 @@ import {
 } from "@mui/material";
 import BlogCard from "../blog/blogCard";
 
-const categories = ["All", "Most Recent", "Most Popular"];
+const categories = [  "How To", "Product Review", "Tools", "Brakes"];
 
 export default function FeaturedBlogs() {
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState("");
   const [blogs, setBlogs] = useState([]);
   const [loadingBlogs, setLoadingBlogs] = useState(true);
 
@@ -29,11 +29,23 @@ export default function FeaturedBlogs() {
           return;
         }
 
-        console.log(
-          "[v0] Fetching featured blogs from:",
-          `${wpUrl}/posts?per_page=3&_embed`
-        );
-        const response = await fetch(`${wpUrl}/posts?per_page=3&_embed`);
+        let apiUrl = `${wpUrl}/posts?per_page=6&_embed`;
+
+        if (activeCategory !== "Blog") {
+          const categoriesResponse = await fetch(
+            `${wpUrl}/categories?search=${activeCategory}`
+          );
+          if (categoriesResponse.ok) {
+            const categoryData = await categoriesResponse.json();
+            if (categoryData.length > 0) {
+              const categoryId = categoryData[0].id;
+              apiUrl = `${wpUrl}/posts?per_page=6&categories=${categoryId}&_embed`;
+            }
+          }
+        }
+
+        console.log("[v0] Fetching featured blogs from:", apiUrl);
+        const response = await fetch(apiUrl);
 
         if (!response.ok) {
           console.log(
@@ -57,7 +69,7 @@ export default function FeaturedBlogs() {
         const posts = await response.json();
 
         const fetched = posts.map((post) => ({
-          ...post, // Pass the entire WordPress post object
+          ...post,
           category: post._embedded?.["wp:term"]?.[0]?.[0]?.name || "Blog",
         }));
 
@@ -70,12 +82,9 @@ export default function FeaturedBlogs() {
     };
 
     fetchBlogs();
-  }, []);
+  }, [activeCategory]);
 
-  const filteredBlogs =
-    activeCategory === "All"
-      ? blogs
-      : blogs.filter((blog) => blog.category === activeCategory);
+  const filteredBlogs = blogs;
 
   return (
     <Container sx={{ my: 6 }}>

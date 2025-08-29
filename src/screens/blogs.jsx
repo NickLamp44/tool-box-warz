@@ -65,7 +65,7 @@ export default function Blogs() {
         console.log(
           "[v0] Fetching posts from:",
           `${wpUrl}/posts?per_page=50&_embed`
-        );
+        ); 
         const response = await fetch(`${wpUrl}/posts?per_page=50&_embed`);
 
         if (!response.ok) {

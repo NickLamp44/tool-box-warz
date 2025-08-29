@@ -2,10 +2,122 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import {
+  Container,
+  Typography,
+  Box,
+  Paper,
+  Chip,
+  CircularProgress,
+  Alert,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+
+const WordPressContent = styled(Box)(({ theme }) => ({
+  "& img": {
+    maxWidth: "100%",
+    height: "auto",
+    borderRadius: theme.spacing(1),
+    margin: theme.spacing(2, 0),
+  },
+  "& .wp-block-gallery": {
+    display: "grid !important",
+    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr)) !important",
+    gap: `${theme.spacing(2)} !important`,
+    margin: `${theme.spacing(3, 0)} !important`,
+    "& .wp-block-image": {
+      margin: "0 !important",
+      "& img": {
+        width: "100% !important",
+        height: "auto !important",
+        objectFit: "cover !important",
+        borderRadius: `${theme.spacing(1)} !important`,
+        margin: "0 !important",
+      },
+    },
+    "& img": {
+      width: "100% !important",
+      height: "auto !important",
+      objectFit: "cover !important",
+      borderRadius: `${theme.spacing(1)} !important`,
+      margin: "0 !important",
+    },
+    // Handle different column layouts
+    "&.columns-2": {
+      gridTemplateColumns: "repeat(2, 1fr) !important",
+    },
+    "&.columns-3": {
+      gridTemplateColumns: "repeat(3, 1fr) !important",
+    },
+    "&.columns-4": {
+      gridTemplateColumns: "repeat(4, 1fr) !important",
+    },
+    // Responsive adjustments
+    [theme.breakpoints.down("md")]: {
+      gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr)) !important",
+      "&.columns-3, &.columns-4": {
+        gridTemplateColumns: "repeat(2, 1fr) !important",
+      },
+    },
+    [theme.breakpoints.down("sm")]: {
+      gridTemplateColumns: "1fr !important",
+      "&.columns-2, &.columns-3, &.columns-4": {
+        gridTemplateColumns: "1fr !important",
+      },
+    },
+  },
+  "& figure.wp-block-gallery, & .wp-block-gallery figure": {
+    display: "grid !important",
+    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr)) !important",
+    gap: `${theme.spacing(2)} !important`,
+    margin: `${theme.spacing(3, 0)} !important`,
+    "& img": {
+      width: "100% !important",
+      height: "auto !important",
+      objectFit: "cover !important",
+      borderRadius: `${theme.spacing(1)} !important`,
+      margin: "0 !important",
+    },
+  },
+  "& blockquote": {
+    borderLeft: `4px solid ${theme.palette.primary.main}`,
+    paddingLeft: theme.spacing(2),
+    fontStyle: "italic",
+    margin: theme.spacing(2, 0),
+    color: theme.palette.text.secondary,
+  },
+  "& h1, & h2, & h3, & h4, & h5, & h6": {
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(1),
+    color: theme.palette.text.primary,
+  },
+  "& p": {
+    marginBottom: theme.spacing(2),
+    lineHeight: 1.7,
+  },
+  "& a": {
+    color: theme.palette.primary.main,
+    textDecoration: "none",
+    "&:hover": {
+      textDecoration: "underline",
+    },
+  },
+}));
 
 const parseWordPressContent = (htmlContent) => {
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = htmlContent;
+
+  console.log("[v0] Full WordPress content HTML:", htmlContent);
+
+  const galleryBlocks = tempDiv.querySelectorAll(
+    ".wp-block-gallery, figure.wp-block-gallery"
+  );
+  console.log("[v0] Found gallery blocks:", galleryBlocks.length);
+  galleryBlocks.forEach((gallery, index) => {
+    console.log(`[v0] Gallery ${index} HTML:`, gallery.outerHTML);
+    console.log(`[v0] Gallery ${index} classes:`, gallery.className);
+  });
 
   const coverBlocks = tempDiv.querySelectorAll(".wp-block-cover");
   const parsedBlocks = [];
@@ -19,9 +131,23 @@ const parseWordPressContent = (htmlContent) => {
     const innerContainer = coverBlock.querySelector(
       ".wp-block-cover__inner-container"
     );
-    const title = innerContainer
-      ? innerContainer.querySelector("h1, h2, h3, h4, h5, h6")?.textContent
-      : null;
+
+    let title = null;
+    if (innerContainer) {
+      // Try multiple selectors for the title
+      title =
+        innerContainer.querySelector("h1, h2, h3, h4, h5, h6")?.textContent ||
+        innerContainer.querySelector(".wp-block-heading")?.textContent ||
+        innerContainer.querySelector("[class*='heading']")?.textContent ||
+        null;
+
+      console.log(
+        "[v0] Cover block inner container HTML:",
+        innerContainer.innerHTML
+      );
+      console.log("[v0] Extracted title:", title);
+    }
+
     const author = innerContainer
       ? innerContainer.textContent.match(/Author:\s*([^,\n]+)/)?.[1]
       : null;
@@ -116,25 +242,36 @@ export default function BlogWPArticle() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-6 py-12">
-        <p>Loading...</p>
-      </div>
+      <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="50vh"
+        >
+          <CircularProgress size={60} />
+        </Box>
+      </Container>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-6 py-12">
-        <p className="text-red-500">{error}</p>
-      </div>
+      <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Alert severity="error" sx={{ maxWidth: 600, mx: "auto" }}>
+          {error}
+        </Alert>
+      </Container>
     );
   }
 
   if (!blog) {
     return (
-      <div className="container mx-auto px-6 py-12">
-        <p>Blog not found</p>
-      </div>
+      <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Alert severity="info" sx={{ maxWidth: 600, mx: "auto" }}>
+          Blog not found
+        </Alert>
+      </Container>
     );
   }
 
@@ -144,70 +281,153 @@ export default function BlogWPArticle() {
   const coverBlock = coverBlocks.length > 0 ? coverBlocks[0] : null;
 
   return (
-    <div className="container mx-auto px-6 py-12 max-w-5xl">
+    <Container maxWidth="lg" sx={{ py: 6 }}>
       {/* Hero / Cover */}
-      
       {coverBlock && (
-        <div
-          className="relative w-full min-h-[60vh] p-5 rounded-xl  overflow-hidden"
-          style={{
+        <Paper
+          elevation={4}
+          sx={{
+            position: "relative",
+            minHeight: { xs: "50vh", md: "60vh" },
+            borderRadius: 3,
+            overflow: "hidden",
+            mb: 6,
             backgroundImage: coverBlock.backgroundImage
               ? `url(${coverBlock.backgroundImage})`
               : "none",
             backgroundColor: coverBlock.backgroundImage
               ? "transparent"
-              : "#f3f4f6",
+              : "grey.100",
             backgroundRepeat: "no-repeat",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         >
-          
+          {/* Overlay for better text readability */}
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%)",
+            }}
+          />
 
           {/* Content */}
-          <div className="absolute inset-0 flex flex-col justify-center items-center text-white text-center p-5  space-y-8">
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              color: "white",
+              textAlign: "center",
+              p: { xs: 3, md: 5 },
+              zIndex: 1,
+            }}
+          >
             {coverBlock.title && (
-              <h1 className=" font-extrabold  leading-tight drop-shadow-lg">
+              <Typography
+                variant="h2"
+                component="h1"
+                sx={{
+                  fontWeight: 800,
+                  fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+                  lineHeight: 1.2,
+                  textShadow: "2px 2px 4px rgba(0,0,0,0.7)",
+                  mb: 4,
+                  maxWidth: "90%",
+                }}
+              >
                 {coverBlock.title}
-              </h1>
+              </Typography>
             )}
 
-            <div className="flex flex-wrap justify-center p-5 gap-6 text-sm md:text-base">
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: 2,
+                mb: 3,
+              }}
+            >
               {coverBlock.author && (
-                <span className="bg-black/20 p-5 rounded-full">
-                  Author: {coverBlock.author}
-                </span>
+                <Chip
+                  label={`Author: ${coverBlock.author}`}
+                  sx={{
+                    backgroundColor: "rgba(0,0,0,0.3)",
+                    color: "white",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                  }}
+                />
               )}
               {coverBlock.date && (
-                <span className="bg-black/20 px-6 py-2 rounded-full">
-                  Date: {coverBlock.date}
-                </span>
+                <Chip
+                  label={`Date: ${coverBlock.date}`}
+                  sx={{
+                    backgroundColor: "rgba(0,0,0,0.3)",
+                    color: "white",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                  }}
+                />
               )}
-            </div>
+            </Box>
 
             {blog.tags?.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-4 mt-6">
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                  gap: 1,
+                }}
+              >
                 {blog.tags.map((tag, index) => (
-                  <span
+                  <Chip
                     key={index}
-                    className="bg-white/ px-4 py-2 m-2 rounded-5 text-sm border border-white/40"
-                  >
-                    {tag}
-                  </span>
+                    label={tag}
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      color: "white",
+                      borderColor: "rgba(255,255,255,0.4)",
+                      backgroundColor: "rgba(255,255,255,0.1)",
+                      backdropFilter: "blur(10px)",
+                      "&:hover": {
+                        backgroundColor: "rgba(255,255,255,0.2)",
+                      },
+                    }}
+                  />
                 ))}
-              </div>
+              </Box>
             )}
-          </div>
-        </div>
+          </Box>
+        </Paper>
       )}
 
       {/* Blog Content */}
-      <div className="prose prose-lg max-w-none prose-img:rounded-lg prose-img:my-8 prose-blockquote:border-l-4 prose-blockquote:pl-4 prose-blockquote:italic prose-h1:mt-10 prose-h2:mt-8 prose-h3:mt-6 prose-p:mb-6">
-        <div
+      <Paper
+        elevation={2}
+        sx={{
+          p: { xs: 3, md: 5 },
+          borderRadius: 2,
+          backgroundColor: "background.paper",
+        }}
+      >
+        <WordPressContent
           dangerouslySetInnerHTML={{ __html: remainingContent }}
-          className="wordpress-content"
+          sx={{
+            fontSize: { xs: "1rem", md: "1.125rem" },
+            lineHeight: 1.7,
+            color: "text.primary",
+          }}
         />
-      </div>
-    </div>
+      </Paper>
+    </Container>
   );
 }

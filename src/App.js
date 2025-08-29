@@ -34,7 +34,7 @@ function App() {
     <CartProvider>
       <Router>
         <div className="App">
-          <WorkInProgressBanner />
+          {/* <WorkInProgressBanner /> */}
           <Navbar />
 
           <main className="py-4">
