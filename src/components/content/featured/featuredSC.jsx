@@ -10,7 +10,7 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import ShowCaseCard from "../showCase/showCaseCard";
+import ArticleCard from "../article/articleCard";
 
 const categories = [
   "All",
@@ -133,7 +133,7 @@ export default function FeaturedShowCase() {
         <Grid container spacing={3}>
           {showcases.map((showcase) => (
             <Grid item key={showcase.id} xs={12} sm={6} md={4}>
-              <ShowCaseCard showcase={showcase} />
+              <ArticleCard article={showcase} type="showcase" />
             </Grid>
           ))}
         </Grid>

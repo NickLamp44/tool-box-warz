@@ -17,122 +17,103 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import { red } from "@mui/material/colors";
 
-export default function ShowCaseCard({ showcase }) {
+export default function ArticleCard({ article, type = "blog" }) {
   const [isFavorited, setIsFavorited] = useState(false);
 
-  if (!showcase) return null;
+  if (!article) return null;
+
+  const extractFeaturedImage = (post) => {
+    // Try embedded featured media first
+    const embeddedMedia = post._embedded?.["wp:featuredmedia"]?.[0];
+    if (embeddedMedia && embeddedMedia.source_url && !embeddedMedia.code) {
+      return embeddedMedia.source_url;
+    }
+
+    // Extract first image from post content if embedded media fails
+    if (post.content?.rendered) {
+      const imgMatch = post.content.rendered.match(/<img[^>]+src="([^">]+)"/);
+      if (imgMatch && imgMatch[1]) {
+        return imgMatch[1];
+      }
+    }
+
+    // Fallback to appropriate placeholder
+    return type === "showcase"
+      ? "/showcase-featured-image.png"
+      : "/blog-featured-image.png";
+  };
+
+  const extractAuthorName = (post) => {
+    // Author ID mapping for known authors
+    const authorMap = {
+      268984364: "Nick Lamparelli",
+    };
+
+    // Try embedded author data first
+    const embeddedAuthor = post._embedded?.author?.[0];
+    if (embeddedAuthor && !embeddedAuthor.code) {
+      return (
+        embeddedAuthor.display_name ||
+        embeddedAuthor.name ||
+        embeddedAuthor.slug
+      );
+    }
+
+    // Use author ID mapping
+    if (post.author && authorMap[post.author]) {
+      return authorMap[post.author];
+    }
+
+    return "The Bike Bench";
+  };
+
+  const processedArticle = {
+    ...article,
+    image: article.image || extractFeaturedImage(article),
+    author: article.author || extractAuthorName(article),
+    title: article.title?.rendered || article.title,
+    previewText:
+      article.previewText ||
+      article.excerpt?.rendered?.replace(/<[^>]*>/g, "") ||
+      "Read more about this post...",
+  };
 
   const getInitials = (name) => {
-    console.log("[v0] getInitials called with:", name, "type:", typeof name);
-    if (!name || typeof name !== "string" || name.trim() === "") {
-      console.log("[v0] Invalid name, returning TB");
-      return "TB";
+    if (!name || typeof name !== "string") {
+      return "TB"; // Default initials for The Bike Bench
     }
+
     try {
-      const initials = name
-        .trim()
+      return name
         .split(" ")
         .map((word) => word[0])
         .join("")
         .toUpperCase();
-      console.log("[v0] Generated initials:", initials);
-      return initials;
     } catch (error) {
       console.error("[v0] Error generating initials:", error);
       return "TB";
     }
   };
 
-  const extractShowcaseData = (post) => {
-    // Extract featured image
-    const featuredMedia = post._embedded?.["wp:featuredmedia"]?.[0];
-    let image = "/showcase-featured-image.png";
-
-    if (featuredMedia && !featuredMedia.code) {
-      image = featuredMedia.source_url;
-    } else {
-      // Fallback: extract first image from content
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = post.content?.rendered || "";
-      const firstImg = tempDiv.querySelector("img");
-      if (firstImg?.src) {
-        image = firstImg.src;
-      }
-    }
-
-    // Extract author
-    const embeddedAuthor = post._embedded?.author?.[0];
-    let author = "The Bike Bench";
-    if (embeddedAuthor && !embeddedAuthor.code) {
-      author =
-        embeddedAuthor.display_name ||
-        embeddedAuthor.name ||
-        embeddedAuthor.slug ||
-        "The Bike Bench";
-    } else if (post.author && typeof post.author === "string") {
-      author = post.author;
-    } else if (post.author && typeof post.author === "number") {
-      // Handle case where author is an ID - use fallback
-      author = "The Bike Bench";
-    }
-
-    console.log("[v0] Extracted author:", author, "type:", typeof author);
-
-    // Extract preview text from excerpt or content
-    let previewText = "";
-    if (post.excerpt?.rendered) {
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = post.excerpt.rendered;
-      previewText = tempDiv.textContent || tempDiv.innerText || "";
-    } else if (post.content?.rendered) {
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = post.content.rendered;
-      previewText =
-        (tempDiv.textContent || tempDiv.innerText || "").substring(0, 150) +
-        "...";
-    }
-
-    return {
-      id: post.id,
-      title: post.title?.rendered || post.title,
-      image,
-      author,
-      date: new Date(post.date),
-      previewText,
-      slug: post.slug,
-    };
-  };
-
-  const showcaseData = showcase.title?.rendered
-    ? extractShowcaseData(showcase)
-    : {
-        id: showcase.id,
-        title: showcase.title,
-        image: showcase.image,
-        author: showcase.author,
-        date: showcase.date,
-        previewText: showcase.previewText,
-        slug: showcase.slug || showcase.id,
-      };
-
   const handleFavoriteClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsFavorited(!isFavorited);
-    console.log("Added to favorites:", showcaseData.title);
+    console.log("Added to favorites:", processedArticle.title);
   };
 
   const handleShareClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("Shared:", showcaseData.title);
+    console.log("Shared:", processedArticle.title);
   };
 
+  const articleLink = processedArticle.slug
+    ? `/${type}/${processedArticle.slug}`
+    : `/${type}/${processedArticle.id}`;
+
   return (
-    <Link
-      to={`/showcase/${showcaseData.slug || showcaseData.id}`}
-      style={{ textDecoration: "none" }}
-    >
+    <Link to={articleLink} style={{ textDecoration: "none" }}>
       <Card
         sx={{
           width: { xs: "100%", sm: 300, md: 345 },
@@ -149,10 +130,10 @@ export default function ShowCaseCard({ showcase }) {
             boxShadow: 8,
             transform: "translateY(-4px)",
           },
-          "&:hover .showcase-image": {
+          "&:hover .article-image": {
             transform: "scale(1.05)",
           },
-          "&:hover .showcase-title": {
+          "&:hover .article-title": {
             color: "primary.main",
           },
         }}
@@ -168,9 +149,9 @@ export default function ShowCaseCard({ showcase }) {
         >
           <CardMedia
             component="img"
-            image={showcaseData.image}
-            alt={showcaseData.title}
-            className="showcase-image"
+            image={processedArticle.image}
+            alt={processedArticle.title}
+            className="article-image"
             sx={{
               width: "100%",
               height: 160,
@@ -214,13 +195,13 @@ export default function ShowCaseCard({ showcase }) {
               }}
               aria-label="author"
             >
-              {getInitials(showcaseData.author)}
+              {getInitials(processedArticle.author)}
             </Avatar>
           }
           title={
             <Typography
               variant="h6"
-              className="showcase-title"
+              className="article-title"
               sx={{
                 fontWeight: 600,
                 fontSize: {
@@ -238,7 +219,7 @@ export default function ShowCaseCard({ showcase }) {
                 hyphens: "auto",
               }}
             >
-              {showcaseData.title}
+              {processedArticle.title}
             </Typography>
           }
           subheader={
@@ -251,16 +232,17 @@ export default function ShowCaseCard({ showcase }) {
                 mt: 0.5,
               }}
             >
-              {showcaseData.date?.toLocaleString?.("en-US", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              }) ||
-                showcaseData.date?.toLocaleDateString?.("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
+              {processedArticle.date instanceof Date
+                ? processedArticle.date.toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
+                : new Date(processedArticle.date).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
             </Typography>
           }
           sx={{
@@ -296,7 +278,7 @@ export default function ShowCaseCard({ showcase }) {
               fontSize: "0.875rem",
             }}
           >
-            {showcaseData.previewText}
+            {processedArticle.previewText}
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
         </CardContent>

@@ -1,10 +1,9 @@
-import React from "react";
 import { Box, Typography, Card, CardContent } from "@mui/material";
 
-const ShowCaseViewer = ({ showcase }) => {
-  if (!showcase) return null;
+const ArticleViewer = ({ article }) => {
+  if (!article) return null;
 
-  const { sections } = showcase;
+  const { sections } = article;
 
   const section = sections?.[0] || {};
   const videoUrl = section.url || "";
@@ -38,4 +37,4 @@ const ShowCaseViewer = ({ showcase }) => {
   );
 };
 
-export default ShowCaseViewer;
+export default ArticleViewer;

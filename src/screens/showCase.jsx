@@ -1,7 +1,9 @@
+"use client";
+
 // ShowCASE: Basic ShowCASE sorting & filtering
 // Category button filters
 // Blogs: Basic Blog sorting & filtering with MUI
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -11,7 +13,7 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import ShowCASECard from "../components/content/showCase/showCaseCard";
+import ArticleCard from "../components/content/article/articleCard";
 import { db } from "../services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 
@@ -21,7 +23,7 @@ export default function ShowCase() {
   const [activeCategory, setActiveCategory] = useState("all");
 
   const [showCases, setShowCases] = useState([]);
-  const [loadingShowCases, setLoadingShowCases] = useState([true]);
+  const [loadingShowCases, setLoadingShowCases] = useState(true);
 
   useEffect(() => {
     const fetchShowCases = async () => {
@@ -93,7 +95,7 @@ export default function ShowCase() {
         <Grid container spacing={3}>
           {filteredShowCases.map((showcase) => (
             <Grid item key={showcase.id} xs={12} sm={6} md={4}>
-              <ShowCASECard showcase={showcase} />
+              <ArticleCard article={showcase} type="showcase" />
             </Grid>
           ))}
         </Grid>

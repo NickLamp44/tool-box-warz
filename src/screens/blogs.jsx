@@ -10,7 +10,7 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import BlogCard from "../components/content/blog/blogCard";
+import ArticleCard from "../components/content/article/articleCard";
 
 export default function Blogs() {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -65,7 +65,7 @@ export default function Blogs() {
         console.log(
           "[v0] Fetching posts from:",
           `${wpUrl}/posts?per_page=50&_embed`
-        ); 
+        );
         const response = await fetch(`${wpUrl}/posts?per_page=50&_embed`);
 
         if (!response.ok) {
@@ -160,7 +160,7 @@ export default function Blogs() {
       <Grid container spacing={4}>
         {filteredBlogs.map((blog) => (
           <Grid item key={blog.id} xs={12} sm={6} md={4}>
-            <BlogCard blog={blog} />
+            <ArticleCard article={blog} type="blog" />
           </Grid>
         ))}
       </Grid>

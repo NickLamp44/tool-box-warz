@@ -12,6 +12,8 @@ import {
   Alert,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+// Pages & Components
+import Comments from "../comments/comments";
 
 const WordPressContent = styled(Box)(({ theme }) => ({
   "& img": {
@@ -149,17 +151,6 @@ const parseWordPressContent = (htmlContent) => {
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = htmlContent;
 
-  console.log("[v0] Full WordPress content HTML:", htmlContent);
-
-  const galleryBlocks = tempDiv.querySelectorAll(
-    ".wp-block-gallery, figure.wp-block-gallery"
-  );
-  console.log("[v0] Found gallery blocks:", galleryBlocks.length);
-  galleryBlocks.forEach((gallery, index) => {
-    console.log(`[v0] Gallery ${index} HTML:`, gallery.outerHTML);
-    console.log(`[v0] Gallery ${index} classes:`, gallery.className);
-  });
-
   const coverBlocks = tempDiv.querySelectorAll(".wp-block-cover");
   const parsedBlocks = [];
 
@@ -181,12 +172,6 @@ const parseWordPressContent = (htmlContent) => {
         innerContainer.querySelector(".wp-block-heading")?.textContent ||
         innerContainer.querySelector("[class*='heading']")?.textContent ||
         null;
-
-      console.log(
-        "[v0] Cover block inner container HTML:",
-        innerContainer.innerHTML
-      );
-      console.log("[v0] Extracted title:", title);
     }
 
     const author = innerContainer
@@ -213,14 +198,42 @@ const parseWordPressContent = (htmlContent) => {
   };
 };
 
-export default function BlogWPArticle() {
-  const { blogId } = useParams();
-  const [blog, setBlog] = useState(null);
+const extractFeaturedImage = (post) => {
+  // Try embedded featured media first
+  const featuredMedia = post._embedded?.["wp:featuredmedia"]?.[0];
+  if (featuredMedia && !featuredMedia.code) {
+    return featuredMedia.source_url;
+  }
+
+  // Fallback: extract first image from content
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = post.content?.rendered || "";
+  const firstImg = tempDiv.querySelector("img");
+  return firstImg?.src || "/article-featured-image.png";
+};
+
+const extractAuthorName = (post) => {
+  const embeddedAuthor = post._embedded?.author?.[0];
+  if (embeddedAuthor && !embeddedAuthor.code) {
+    return (
+      embeddedAuthor.display_name || embeddedAuthor.name || embeddedAuthor.slug
+    );
+  }
+  return "The Bike Bench";
+};
+
+export default function Article({
+  requireCategory = null,
+  showComments = false,
+}) {
+  const { blogId, showCaseId } = useParams();
+  const articleId = blogId || showCaseId;
+  const [article, setArticle] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchBlog = async () => {
+    const fetchArticle = async () => {
       try {
         const wpUrl = process.env.REACT_APP_WORDPRESS_URL;
         if (!wpUrl) {
@@ -229,57 +242,54 @@ export default function BlogWPArticle() {
         }
 
         let url;
-        if (isNaN(blogId)) {
-          url = `${wpUrl}/posts?slug=${blogId}&_embed`;
+        if (isNaN(articleId)) {
+          url = `${wpUrl}/posts?slug=${articleId}&_embed`;
         } else {
-          url = `${wpUrl}/posts/${blogId}?_embed`;
+          url = `${wpUrl}/posts/${articleId}?_embed`;
         }
 
         const response = await fetch(url);
         if (!response.ok)
-          throw new Error(`Blog API returned ${response.status}`);
+          throw new Error(`Article API returned ${response.status}`);
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("WordPress API returned HTML instead of JSON");
+        }
 
         const data = await response.json();
         const post = Array.isArray(data) ? data[0] : data;
 
         if (!post) {
-          setError("Blog not found");
+          setError("Article not found");
           return;
         }
 
-        const blogData = {
-          title: post.title.rendered,
-          authorName: post._embedded?.author?.[0]?.name || "Unknown Author",
-          publishedDate: new Date(post.date).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
-          heroImage: {
-            src:
-              post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
-              "/blog-hero.png",
-            alt:
-              post._embedded?.["wp:featuredmedia"]?.[0]?.alt_text ||
-              post.title.rendered,
-          },
-          tags:
-            post._embedded?.["wp:term"]?.[0]?.map((term) => term.name) || [],
-          subtitle: post.excerpt.rendered.replace(/<[^>]*>/g, ""),
-          rawContent: post.content.rendered,
-        };
+        if (requireCategory) {
+          const categories = post._embedded?.["wp:term"]?.[0] || [];
+          const hasRequiredCategory = categories.some(
+            (cat) =>
+              cat.name.toLowerCase().includes(requireCategory.toLowerCase()) ||
+              cat.slug.toLowerCase().includes(requireCategory.toLowerCase())
+          );
 
-        setBlog(blogData);
+          if (!hasRequiredCategory) {
+            setError(`This article is not a ${requireCategory}`);
+            return;
+          }
+        }
+
+        setArticle(post);
       } catch (err) {
-        console.error("Error fetching WordPress blog:", err);
-        setError("Failed to fetch blog");
+        console.error("Error fetching WordPress article:", err);
+        setError("Failed to fetch article");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBlog();
-  }, [blogId]);
+    fetchArticle();
+  }, [articleId, requireCategory]);
 
   if (loading) {
     return (
@@ -306,152 +316,149 @@ export default function BlogWPArticle() {
     );
   }
 
-  if (!blog) {
+  if (!article) {
     return (
       <Container maxWidth="lg" sx={{ py: 6 }}>
         <Alert severity="info" sx={{ maxWidth: 600, mx: "auto" }}>
-          Blog not found
+          Article not found
         </Alert>
       </Container>
     );
   }
 
   const { coverBlocks, remainingContent } = parseWordPressContent(
-    blog.rawContent
+    article.content?.rendered || ""
   );
   const coverBlock = coverBlocks.length > 0 ? coverBlocks[0] : null;
+  const featuredImage = extractFeaturedImage(article);
+  const authorName = extractAuthorName(article);
+  const categories = article._embedded?.["wp:term"]?.[0] || [];
+  const publishedDate = new Date(article.date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
-      {/* Hero / Cover */}
-      {coverBlock && (
-        <Paper
-          elevation={4}
+      {/* Hero / Cover - Use cover block if available, otherwise use featured image */}
+      <Paper
+        elevation={4}
+        sx={{
+          position: "relative",
+          minHeight: { xs: "50vh", md: "60vh" },
+          borderRadius: 3,
+          overflow: "hidden",
+          mb: 6,
+          backgroundImage: `url(${
+            coverBlock?.backgroundImage || featuredImage
+          })`,
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* Overlay for better text readability */}
+        <Box
           sx={{
-            position: "relative",
-            minHeight: { xs: "50vh", md: "60vh" },
-            borderRadius: 3,
-            overflow: "hidden",
-            mb: 6,
-            backgroundImage: coverBlock.backgroundImage
-              ? `url(${coverBlock.backgroundImage})`
-              : "none",
-            backgroundColor: coverBlock.backgroundImage
-              ? "transparent"
-              : "grey.100",
-            backgroundRepeat: "no-repeat",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%)",
+          }}
+        />
+
+        {/* Content */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "white",
+            textAlign: "center",
+            p: { xs: 3, md: 5 },
+            zIndex: 1,
           }}
         >
-          {/* Overlay for better text readability */}
-          <Box
+          <Typography
+            variant="h2"
+            component="h1"
             sx={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%)",
-            }}
-          />
-
-          {/* Content */}
-          <Box
-            sx={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              color: "white",
-              textAlign: "center",
-              p: { xs: 3, md: 5 },
-              zIndex: 1,
+              fontWeight: 800,
+              fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+              lineHeight: 1.2,
+              textShadow: "2px 2px 4px rgba(0,0,0,0.7)",
+              mb: 4,
+              maxWidth: "90%",
             }}
           >
-            {coverBlock.title && (
-              <Typography
-                variant="h2"
-                component="h1"
-                sx={{
-                  fontWeight: 800,
-                  fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
-                  lineHeight: 1.2,
-                  textShadow: "2px 2px 4px rgba(0,0,0,0.7)",
-                  mb: 4,
-                  maxWidth: "90%",
-                }}
-              >
-                {coverBlock.title}
-              </Typography>
-            )}
+            {coverBlock?.title || article.title?.rendered}
+          </Typography>
 
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 2,
+              mb: 3,
+            }}
+          >
+            <Chip
+              label={`By ${coverBlock?.author || authorName}`}
+              sx={{
+                backgroundColor: "rgba(0,0,0,0.3)",
+                color: "white",
+                backdropFilter: "blur(10px)",
+                border: "1px solid rgba(255,255,255,0.2)",
+              }}
+            />
+            <Chip
+              label={`${coverBlock?.date || publishedDate}`}
+              sx={{
+                backgroundColor: "rgba(0,0,0,0.3)",
+                color: "white",
+                backdropFilter: "blur(10px)",
+                border: "1px solid rgba(255,255,255,0.2)",
+              }}
+            />
+          </Box>
+
+          {categories.length > 0 && (
             <Box
               sx={{
                 display: "flex",
                 flexWrap: "wrap",
                 justifyContent: "center",
-                gap: 2,
-                mb: 3,
+                gap: 1,
               }}
             >
-              {coverBlock.author && (
+              {categories.map((category) => (
                 <Chip
-                  label={`Author: ${coverBlock.author}`}
+                  key={category.id}
+                  label={category.name}
+                  variant="outlined"
+                  size="small"
                   sx={{
-                    backgroundColor: "rgba(0,0,0,0.3)",
                     color: "white",
+                    borderColor: "rgba(255,255,255,0.4)",
+                    backgroundColor: "rgba(255,255,255,0.1)",
                     backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255,255,255,0.2)",
+                    "&:hover": {
+                      backgroundColor: "rgba(255,255,255,0.2)",
+                    },
                   }}
                 />
-              )}
-              {coverBlock.date && (
-                <Chip
-                  label={`Date: ${coverBlock.date}`}
-                  sx={{
-                    backgroundColor: "rgba(0,0,0,0.3)",
-                    color: "white",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                  }}
-                />
-              )}
+              ))}
             </Box>
+          )}
+        </Box>
+      </Paper>
 
-            {blog.tags?.length > 0 && (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  justifyContent: "center",
-                  gap: 1,
-                }}
-              >
-                {blog.tags.map((tag, index) => (
-                  <Chip
-                    key={index}
-                    label={tag}
-                    variant="outlined"
-                    size="small"
-                    sx={{
-                      color: "white",
-                      borderColor: "rgba(255,255,255,0.4)",
-                      backgroundColor: "rgba(255,255,255,0.1)",
-                      backdropFilter: "blur(10px)",
-                      "&:hover": {
-                        backgroundColor: "rgba(255,255,255,0.2)",
-                      },
-                    }}
-                  />
-                ))}
-              </Box>
-            )}
-          </Box>
-        </Paper>
-      )}
-
-      {/* Blog Content */}
+      {/* Article Content */}
       <Paper
         elevation={2}
         sx={{
@@ -469,6 +476,12 @@ export default function BlogWPArticle() {
           }}
         />
       </Paper>
+
+      {showComments && (
+        <Box sx={{ mt: 4 }}>
+          <Comments showCaseId={articleId} />
+        </Box>
+      )}
     </Container>
   );
 }

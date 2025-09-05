@@ -10,9 +10,9 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import BlogCard from "../blog/blogCard";
+import ArticleCard from "../article/articleCard";
 
-const categories = [  "How To", "Product Review", "Tools", "Brakes"];
+const categories = ["How To", "Product Review", "Tools", "Brakes"];
 
 export default function FeaturedBlogs() {
   const [activeCategory, setActiveCategory] = useState("");
@@ -124,7 +124,7 @@ export default function FeaturedBlogs() {
         <Grid container spacing={3}>
           {filteredBlogs.map((blog) => (
             <Grid item key={blog.id} xs={12} sm={6} md={4}>
-              <BlogCard blog={blog} />
+              <ArticleCard article={blog} type="blog" />
             </Grid>
           ))}
         </Grid>

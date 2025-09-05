@@ -1,5 +1,3 @@
-// Frameworks & Libraries
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Screens & Components
@@ -8,9 +6,8 @@ import Navbar from "./components/navigation/navBar";
 import Footer from "./components/generic/footer";
 import SignIn from "./components/uam/login";
 import SignUp from "./components/uam/signup";
-import BlogArticle from "./components/content/blog/blog";
-
-import ShowCaseArticle from "./components/content/showCase/showCase";
+import BlogArticle from "./components/content/article/blogArticle";
+import ShowCaseArticle from "./components/content/article/showCaseArticle";
 import MerchItem from "./components/store/merchItem";
 
 import Home from "./screens/home";
@@ -34,7 +31,7 @@ function App() {
     <CartProvider>
       <Router>
         <div className="App">
-          {/* <WorkInProgressBanner /> */}
+          <WorkInProgressBanner />
           <Navbar />
 
           <main className="py-4">
@@ -48,7 +45,7 @@ function App() {
               {/* Blogs + showCASE */}
               <Route path="/blogs" element={<Blogs />} />
               <Route path="/blog/:blogId" element={<BlogArticle />} />
-              
+
               <Route path="/showcases" element={<ShowCase />} />
               <Route
                 path="/showcase/:showCaseId"
