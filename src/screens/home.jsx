@@ -9,13 +9,13 @@ export default function Home() {
   return (
     <Box>
       {/* Hero Carousel Section */}
-      <Box className="mb-5">
+      <Box>
         <HeroCarousel />
       </Box>
 
       <FeaturedShowCases />
       <FeaturedBlogs />
-      <FeaturedMerch />
+      {/* <FeaturedMerch /> */}
     </Box>
   );
 }

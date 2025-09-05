@@ -22,28 +22,117 @@ export default function ShowCaseCard({ showcase }) {
 
   if (!showcase) return null;
 
-  const getInitials = (name) =>
-    name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase();
+  const getInitials = (name) => {
+    console.log("[v0] getInitials called with:", name, "type:", typeof name);
+    if (!name || typeof name !== "string" || name.trim() === "") {
+      console.log("[v0] Invalid name, returning TB");
+      return "TB";
+    }
+    try {
+      const initials = name
+        .trim()
+        .split(" ")
+        .map((word) => word[0])
+        .join("")
+        .toUpperCase();
+      console.log("[v0] Generated initials:", initials);
+      return initials;
+    } catch (error) {
+      console.error("[v0] Error generating initials:", error);
+      return "TB";
+    }
+  };
+
+  const extractShowcaseData = (post) => {
+    // Extract featured image
+    const featuredMedia = post._embedded?.["wp:featuredmedia"]?.[0];
+    let image = "/showcase-featured-image.png";
+
+    if (featuredMedia && !featuredMedia.code) {
+      image = featuredMedia.source_url;
+    } else {
+      // Fallback: extract first image from content
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = post.content?.rendered || "";
+      const firstImg = tempDiv.querySelector("img");
+      if (firstImg?.src) {
+        image = firstImg.src;
+      }
+    }
+
+    // Extract author
+    const embeddedAuthor = post._embedded?.author?.[0];
+    let author = "The Bike Bench";
+    if (embeddedAuthor && !embeddedAuthor.code) {
+      author =
+        embeddedAuthor.display_name ||
+        embeddedAuthor.name ||
+        embeddedAuthor.slug ||
+        "The Bike Bench";
+    } else if (post.author && typeof post.author === "string") {
+      author = post.author;
+    } else if (post.author && typeof post.author === "number") {
+      // Handle case where author is an ID - use fallback
+      author = "The Bike Bench";
+    }
+
+    console.log("[v0] Extracted author:", author, "type:", typeof author);
+
+    // Extract preview text from excerpt or content
+    let previewText = "";
+    if (post.excerpt?.rendered) {
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = post.excerpt.rendered;
+      previewText = tempDiv.textContent || tempDiv.innerText || "";
+    } else if (post.content?.rendered) {
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = post.content.rendered;
+      previewText =
+        (tempDiv.textContent || tempDiv.innerText || "").substring(0, 150) +
+        "...";
+    }
+
+    return {
+      id: post.id,
+      title: post.title?.rendered || post.title,
+      image,
+      author,
+      date: new Date(post.date),
+      previewText,
+      slug: post.slug,
+    };
+  };
+
+  const showcaseData = showcase.title?.rendered
+    ? extractShowcaseData(showcase)
+    : {
+        id: showcase.id,
+        title: showcase.title,
+        image: showcase.image,
+        author: showcase.author,
+        date: showcase.date,
+        previewText: showcase.previewText,
+        slug: showcase.slug || showcase.id,
+      };
 
   const handleFavoriteClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsFavorited(!isFavorited);
-    console.log("Added to favorites:", showcase.title);
+    console.log("Added to favorites:", showcaseData.title);
   };
 
   const handleShareClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("Shared:", showcase.title);
+    console.log("Shared:", showcaseData.title);
   };
 
   return (
-    <Link to={`/showcase/${showcase.id}`} style={{ textDecoration: "none" }}>
+    <Link
+      to={`/showcase/${showcaseData.slug || showcaseData.id}`}
+      style={{ textDecoration: "none" }}
+    >
       <Card
         sx={{
           width: { xs: "100%", sm: 300, md: 345 },
@@ -79,8 +168,8 @@ export default function ShowCaseCard({ showcase }) {
         >
           <CardMedia
             component="img"
-            image={showcase.image}
-            alt={showcase.title}
+            image={showcaseData.image}
+            alt={showcaseData.title}
             className="showcase-image"
             sx={{
               width: "100%",
@@ -125,13 +214,13 @@ export default function ShowCaseCard({ showcase }) {
               }}
               aria-label="author"
             >
-              {getInitials(showcase.author)}
+              {getInitials(showcaseData.author)}
             </Avatar>
           }
           title={
             <Typography
               variant="h6"
-              className="blog-title"
+              className="showcase-title"
               sx={{
                 fontWeight: 600,
                 fontSize: {
@@ -149,7 +238,7 @@ export default function ShowCaseCard({ showcase }) {
                 hyphens: "auto",
               }}
             >
-              {showcase.title}
+              {showcaseData.title}
             </Typography>
           }
           subheader={
@@ -162,11 +251,18 @@ export default function ShowCaseCard({ showcase }) {
                 mt: 0.5,
               }}
             >
-              {showcase.date?.toDate?.().toLocaleString("en-US", {
+
+              {showcaseData.date?.toLocaleString?.("en-US", {
                 year: "numeric",
                 month: "short",
                 day: "numeric",
-              })}
+              }) ||
+                showcaseData.date?.toLocaleDateString?.("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+
             </Typography>
           }
           sx={{
@@ -175,7 +271,7 @@ export default function ShowCaseCard({ showcase }) {
             alignItems: "flex-start",
             "& .MuiCardHeader-content": {
               overflow: "hidden",
-              minWidth: 0, // Allows text to shrink
+              minWidth: 0,
             },
           }}
         />
@@ -202,7 +298,7 @@ export default function ShowCaseCard({ showcase }) {
               fontSize: "0.875rem",
             }}
           >
-            {showcase.previewText}
+            {showcaseData.previewText}
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
         </CardContent>
@@ -247,10 +343,8 @@ export default function ShowCaseCard({ showcase }) {
             <ShareIcon />
           </IconButton>
 
-          {/* Spacer to push content */}
           <Box sx={{ flexGrow: 1 }} />
 
-          {/* Optional: Add a subtle indicator for more content */}
           <Typography
             variant="caption"
             sx={{

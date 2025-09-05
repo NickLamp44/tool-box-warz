@@ -23,73 +23,94 @@ export default function BlogCard({ blog }) {
 
   if (!blog) return null;
 
-  const getInitials = (name) =>
-    name
-      ?.split(" ")
+
+  const extractFeaturedImage = (post) => {
+    // Try embedded featured media first
+    const embeddedMedia = post._embedded?.["wp:featuredmedia"]?.[0];
+    if (embeddedMedia && embeddedMedia.source_url && !embeddedMedia.code) {
+      return embeddedMedia.source_url;
+    }
+
+    // Extract first image from post content if embedded media fails
+    if (post.content?.rendered) {
+      const imgMatch = post.content.rendered.match(/<img[^>]+src="([^">]+)"/);
+      if (imgMatch && imgMatch[1]) {
+        return imgMatch[1];
+      }
+    }
+
+    // Fallback to placeholder
+    return "/blog-featured-image.png";
+  };
+
+  const extractAuthorName = (post) => {
+    // Author ID mapping for known authors
+    const authorMap = {
+      268984364: "Nick Lamparelli",
+    };
+
+    // Try embedded author data first
+    const embeddedAuthor = post._embedded?.author?.[0];
+    if (embeddedAuthor && !embeddedAuthor.code) {
+      return (
+        embeddedAuthor.display_name ||
+        embeddedAuthor.name ||
+        embeddedAuthor.slug
+      );
+    }
+
+    // Use author ID mapping
+    if (post.author && authorMap[post.author]) {
+      return authorMap[post.author];
+    }
+
+    return "The Bike Bench";
+  };
+
+  const processedBlog = {
+    ...blog,
+    image: blog.image || extractFeaturedImage(blog),
+    author: blog.author || extractAuthorName(blog),
+    title: blog.title?.rendered || blog.title,
+    previewText:
+      blog.previewText ||
+      blog.excerpt?.rendered?.replace(/<[^>]*>/g, "") ||
+      "Read more about this post...",
+  };
+
+  const getInitials = (name) => {
+    if (!name || typeof name !== "string") {
+      return "TB"; // Default initials for The Bike Bench
+    }
+
+    return name
+      .split(" ")
       .map((word) => word[0])
       .join("")
-      .toUpperCase() || "??";
+      .toUpperCase();
+  };
+
 
   const handleFavoriteClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsFavorited(!isFavorited);
-    console.log("Added to favorites:", blog.title);
+    console.log("Added to favorites:", processedBlog.title);
   };
 
   const handleShareClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("Shared:", blog.title);
+    console.log("Shared:", processedBlog.title);
   };
 
-  // Format date properly
-  const formatDate = (date) => {
-    if (!date) return "";
+  const blogLink = processedBlog.slug
+    ? `/blog/${processedBlog.slug}`
+    : `/blog/${processedBlog.id}`;
 
-    // Handle different date formats
-    if (date.toDate && typeof date.toDate === "function") {
-      return date.toDate().toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    }
-
-    if (date instanceof Date) {
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    }
-
-    // Handle string dates
-    if (typeof date === "string") {
-      return new Date(date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    }
-
-    return date;
-  };
-
-  // Get preview text from subtitle or first content section
-  const getPreviewText = () => {
-    if (blog.subtitle) return blog.subtitle;
-    if (blog.content && blog.content.length > 0) {
-      const firstSection = blog.content[0];
-      if (firstSection.content) {
-        return firstSection.content.substring(0, 150) + "...";
-      }
-    }
-    return "Read more about this article...";
-  };
 
   return (
-    <Link to={`/blog/${blog.id}`} style={{ textDecoration: "none" }}>
+    <Link to={blogLink} style={{ textDecoration: "none" }}>
       <Card
         sx={{
           width: { xs: "100%", sm: 300, md: 345 },
@@ -125,10 +146,10 @@ export default function BlogCard({ blog }) {
         >
           <CardMedia
             component="img"
-            image={
-              blog.heroImage?.src || "/placeholder.svg?height=160&width=345"
-            }
-            alt={blog.heroImage?.alt || blog.title}
+
+            image={processedBlog.image}
+            alt={processedBlog.title}
+
             className="blog-image"
             sx={{
               width: "100%",
@@ -173,7 +194,9 @@ export default function BlogCard({ blog }) {
               }}
               aria-label="author"
             >
-              {getInitials(blog.authorName)}
+
+              {getInitials(processedBlog.author)}
+
             </Avatar>
           }
           title={
@@ -197,7 +220,7 @@ export default function BlogCard({ blog }) {
                 hyphens: "auto",
               }}
             >
-              {blog.title}
+              {processedBlog.title}
             </Typography>
           }
           subheader={
@@ -210,7 +233,19 @@ export default function BlogCard({ blog }) {
                 mt: 0.5,
               }}
             >
-              {formatDate(blog.publishedDate)}
+
+              {processedBlog.date instanceof Date
+                ? processedBlog.date.toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
+                : new Date(processedBlog.date).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+
             </Typography>
           }
           sx={{
@@ -234,34 +269,21 @@ export default function BlogCard({ blog }) {
             flexDirection: "column",
           }}
         >
-          {/* Tags */}
-          {blog.tags && blog.tags.length > 0 && (
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1 }}>
-              {blog.tags.slice(0, 3).map((tag) => (
-                <Chip
-                  key={tag}
-                  label={tag}
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    fontSize: "0.75rem",
-                    height: "24px",
-                  }}
-                />
-              ))}
-              {blog.tags.length > 3 && (
-                <Chip
-                  label={`+${blog.tags.length - 3}`}
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    fontSize: "0.75rem",
-                    height: "24px",
-                  }}
-                />
-              )}
-            </Box>
-          )}
+
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              display: "-webkit-box",
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              lineHeight: 1.5,
+              fontSize: "0.875rem",
+            }}
+          >
+            {processedBlog.previewText}
+          </Typography>
 
           <Box sx={{ flexGrow: 1 }} />
         </CardContent>
@@ -271,7 +293,7 @@ export default function BlogCard({ blog }) {
           disableSpacing
           sx={{
             paddingTop: 0,
-            justifyContent: "flex-start",
+            justifyContent: "center",
           }}
         >
           <IconButton

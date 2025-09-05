@@ -21,7 +21,7 @@ function cleanObject(obj) {
 }
 
 export default function ContentUploader() {
-  const [markdownFile, setMarkdownFile] = useState(null);
+  const [file, setFile] = useState(null);
   const [mediaFiles, setMediaFiles] = useState([]);
   const [videoLinks, setVideoLinks] = useState([""]);
   const [status, setStatus] = useState("");
@@ -29,8 +29,10 @@ export default function ContentUploader() {
   const [customCollection, setCustomCollection] = useState("");
 
   const handleUpload = async () => {
-    if (!markdownFile) {
-      setStatus("❌ No markdown file selected.");
+
+    if (!file) {
+      setStatus("❌ No file selected.");
+
       return;
     }
 
@@ -43,20 +45,32 @@ export default function ContentUploader() {
     setStatus("⏳ Parsing and uploading...");
 
     try {
-      // ✅ Parse markdown front matter and body
-      const fileText = await markdownFile.text();
-      const parsed = frontMatter(fileText);
-      const data = parsed.attributes;
-      const content = parseContent(parsed.body);
+
+      const fileText = await file.text();
+      let data = {};
+      let sections = [];
+
+      if (file.name.endsWith(".json")) {
+        // ✅ JSON blogs (new schema)
+        data = JSON.parse(fileText);
+        sections = data.sections || [];
+      } else {
+        // ✅ Markdown blogs (frontmatter + body)
+        const parsed = frontMatter(fileText);
+        data = parsed.attributes;
+        sections = parseContent(parsed.body); // normalize into sections
+      }
+
+
 
       // ✅ Upload any additional media files
       const storage = getStorage();
       const uploadedMedia = await Promise.all(
-        mediaFiles.map(async (file) => {
-          const fileRef = ref(storage, `Media/${uuidv4()}_${file.name}`);
-          await uploadBytes(fileRef, file);
+        mediaFiles.map(async (f) => {
+          const fileRef = ref(storage, `Media/${uuidv4()}_${f.name}`);
+          await uploadBytes(fileRef, f);
           const url = await getDownloadURL(fileRef);
-          return { name: file.name, url };
+          return { name: f.name, url };
         })
       );
 
@@ -70,26 +84,15 @@ export default function ContentUploader() {
         heroImage: data.heroImage || {},
         videos: videoLinks.filter((link) => link.trim() !== ""),
         images: uploadedMedia || [],
-        content: content || [],
+        sections: sections || [],
         publishedAt: serverTimestamp(),
       };
 
-      // ✅ Remove undefined/null recursively
       mainDoc = cleanObject(mainDoc);
 
-      // ✅ Upload main blog document
-      const docRef = await addDoc(collection(db, targetCollection), mainDoc);
+      // ✅ Upload blog doc to Firestore
+      await addDoc(collection(db, targetCollection), mainDoc);
 
-      // ✅ Optional: Upload sections separately (if provided in front matter)
-      if (Array.isArray(data.sections)) {
-        const sectionPromises = data.sections.map((section) =>
-          addDoc(
-            collection(db, targetCollection, docRef.id, "sections"),
-            cleanObject(section)
-          )
-        );
-        await Promise.all(sectionPromises);
-      }
 
       setStatus(`✅ Content uploaded to "${targetCollection}" successfully!`);
     } catch (err) {
@@ -99,9 +102,9 @@ export default function ContentUploader() {
   };
 
   const handleVideoLinkChange = (index, value) => {
-    const updatedLinks = [...videoLinks];
-    updatedLinks[index] = value;
-    setVideoLinks(updatedLinks);
+    const updated = [...videoLinks];
+    updated[index] = value;
+    setVideoLinks(updated);
   };
 
   const addVideoLinkInput = () => {
@@ -137,7 +140,7 @@ export default function ContentUploader() {
       <input
         type="file"
         accept=".md,.mdx,.json"
-        onChange={(e) => setMarkdownFile(e.target.files[0])}
+        onChange={(e) => setFile(e.target.files[0])}
         style={{ marginBottom: "1rem" }}
       />
 

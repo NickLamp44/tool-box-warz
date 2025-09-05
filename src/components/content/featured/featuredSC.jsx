@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -8,56 +10,95 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import ShowCASECard from "../showCase/showCaseCard";
-import { db } from "../../../services/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import ShowCaseCard from "../showCase/showCaseCard";
 
-const categories = ["All", "Most Recent", "Most Popular"];
+const categories = [
+  "All",
+  "Bike Builds",
+  "Custom Parts",
+  "Modifications",
+  "Reviews",
+];
 
 export default function FeaturedShowCase() {
-  const [activeCategory, setActiveCategory] = useState("all");
-
-  const [showCases, setShowCases] = useState([]);
-  const [loadingShowCases, setLoadingShowCases] = useState([true]);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [showcases, setShowcases] = useState([]);
+  const [loadingShowcases, setLoadingShowcases] = useState(true);
 
   useEffect(() => {
-    const fetchShowCases = async () => {
+    const fetchShowcases = async () => {
       try {
-        const snapshot = await getDocs(collection(db, "showcases"));
-        const fetched = snapshot.docs
-          .map((doc) => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              title: data.title,
-              author: data.authorName,
-              date: data.publishedDate,
-              category: data.tags?.[0] || "tools",
-              image: data.heroImage?.src,
-              previewText: data.subtitle,
-            };
-          })
-          .slice(0, 3);
-        setShowCases(fetched);
+        const wpUrl = process.env.REACT_APP_WORDPRESS_URL;
+
+        if (!wpUrl) {
+          console.error("[v0] WordPress URL not configured");
+          return;
+        }
+
+        const categoriesResponse = await fetch(
+          `${wpUrl}/categories?search=ShowCASE`
+        );
+        let showcaseCategoryId = null;
+
+        if (categoriesResponse.ok) {
+          const categoryData = await categoriesResponse.json();
+          const showcaseCategory = categoryData.find(
+            (cat) =>
+              cat.name.toLowerCase().includes("showcase") ||
+              cat.slug.toLowerCase().includes("showcase")
+          );
+          if (showcaseCategory) {
+            showcaseCategoryId = showcaseCategory.id;
+          }
+        }
+
+        if (!showcaseCategoryId) {
+          console.error("[v0] ShowCASE category not found");
+          return;
+        }
+
+        const apiUrl = `${wpUrl}/posts?per_page=6&categories=${showcaseCategoryId}&_embed`;
+
+        console.log("[v0] Fetching featured showcases from:", apiUrl);
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+          console.log(
+            "[v0] Featured showcases response not OK:",
+            response.status,
+            response.statusText
+          );
+          throw new Error(`Featured showcases API returned ${response.status}`);
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          const responseText = await response.text();
+          console.log(
+            "[v0] Featured showcases response is not JSON:",
+            responseText.substring(0, 200)
+          );
+          throw new Error(
+            "Featured showcases API returned HTML instead of JSON"
+          );
+        }
+
+        const posts = await response.json();
+        setShowcases(posts);
       } catch (err) {
-        console.error("🔥 Failed to fetch ShowCase:", err);
+        console.error("🔥 Failed to fetch WordPress showcases:", err);
       } finally {
-        setLoadingShowCases(false);
+        setLoadingShowcases(false);
       }
     };
 
-    fetchShowCases();
-  }, []);
-
-  const filteredShowCases =
-    activeCategory === "all"
-      ? showCases
-      : showCases.filter((showcase) => showcase.category === activeCategory);
+    fetchShowcases();
+  }, [activeCategory]);
 
   return (
     <Container sx={{ my: 6 }}>
       <Typography variant="h4" gutterBottom>
-        Featured ShowCASE
+        Featured ShowCases
       </Typography>
 
       <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
@@ -84,15 +125,15 @@ export default function FeaturedShowCase() {
         </ButtonGroup>
       </Box>
 
-      {loadingShowCases ? (
+      {loadingShowcases ? (
         <Box display="flex" justifyContent="center">
           <CircularProgress />
         </Box>
       ) : (
         <Grid container spacing={3}>
-          {filteredShowCases.map((showcase) => (
+          {showcases.map((showcase) => (
             <Grid item key={showcase.id} xs={12} sm={6} md={4}>
-              <ShowCASECard showcase={showcase} />
+              <ShowCaseCard showcase={showcase} />
             </Grid>
           ))}
         </Grid>

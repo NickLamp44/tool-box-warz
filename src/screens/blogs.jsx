@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -6,46 +8,124 @@ import {
   ButtonGroup,
   Grid,
   Box,
+  CircularProgress,
 } from "@mui/material";
 import BlogCard from "../components/content/blog/blogCard";
-import { db } from "../services/firebase";
-import { collection, getDocs } from "firebase/firestore";
-
-const categories = ["all", "tools", "video", "maintenance"];
 
 export default function Blogs() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [blogs, setBlogs] = useState([]);
+  const [categories, setCategories] = useState(["all"]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchBlogs = async () => {
+    const fetchCategoriesAndBlogs = async () => {
       try {
-        const snapshot = await getDocs(collection(db, "blogs"));
-        const fetched = snapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            title: data.title,
-            author: data.authorName,
-            date: data.publishedDate,
-            category: data.tags?.[0] || "tools",
-            image: data.heroImage?.src,
-            previewText: data.subtitle,
-          };
-        });
+        const wpUrl = process.env.REACT_APP_WORDPRESS_URL;
+
+        if (!wpUrl) {
+          throw new Error(
+            "WordPress URL not configured. Please set REACT_APP_WORDPRESS_URL in your environment variables."
+          );
+        }
+
+        console.log("[v0] Fetching categories from:", `${wpUrl}/categories`);
+        const categoriesResponse = await fetch(`${wpUrl}/categories`);
+
+        if (!categoriesResponse.ok) {
+          console.log(
+            "[v0] Categories response not OK:",
+            categoriesResponse.status,
+            categoriesResponse.statusText
+          );
+          throw new Error(
+            `Categories API returned ${categoriesResponse.status}`
+          );
+        }
+
+        const contentType = categoriesResponse.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          const responseText = await categoriesResponse.text();
+          console.log(
+            "[v0] Categories response is not JSON:",
+            responseText.substring(0, 200)
+          );
+          throw new Error(
+            "Categories API returned HTML instead of JSON - check your WordPress URL"
+          );
+        }
+
+        const categoriesData = await categoriesResponse.json();
+        const categoryNames = [
+          "all",
+          ...categoriesData.map((cat) => cat.name.toLowerCase()),
+        ];
+        setCategories(categoryNames);
+
+        console.log(
+          "[v0] Fetching posts from:",
+          `${wpUrl}/posts?per_page=50&_embed`
+        ); 
+        const response = await fetch(`${wpUrl}/posts?per_page=50&_embed`);
+
+        if (!response.ok) {
+          console.log(
+            "[v0] Posts response not OK:",
+            response.status,
+            response.statusText
+          );
+          throw new Error(`Posts API returned ${response.status}`);
+        }
+
+        const postsContentType = response.headers.get("content-type");
+        if (
+          !postsContentType ||
+          !postsContentType.includes("application/json")
+        ) {
+          const responseText = await response.text();
+          console.log(
+            "[v0] Posts response is not JSON:",
+            responseText.substring(0, 200)
+          );
+          throw new Error(
+            "Posts API returned HTML instead of JSON - check your WordPress URL and REST API"
+          );
+        }
+
+        const posts = await response.json();
+
+        const fetched = posts.map((post) => ({
+          ...post, // Pass the entire WordPress post object
+          category:
+            post._embedded?.["wp:term"]?.[0]?.[0]?.name?.toLowerCase() ||
+            "tools",
+        }));
+
         setBlogs(fetched);
       } catch (err) {
-        console.error("🔥 Failed to fetch blogs:", err);
+        console.error("🔥 Failed to fetch WordPress blogs:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchBlogs();
+    fetchCategoriesAndBlogs();
   }, []);
 
   const filteredBlogs =
     activeCategory === "all"
       ? blogs
       : blogs.filter((blog) => blog.category === activeCategory);
+
+  if (loading) {
+    return (
+      <Container sx={{ my: 6 }}>
+        <Box display="flex" justifyContent="center">
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
 
   return (
     <Container sx={{ my: 6 }}>

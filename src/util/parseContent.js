@@ -1,150 +1,58 @@
-export function parseContent(body) {
-  if (!body || typeof body !== "string") return [];
 
-  console.log("Raw body for parsing:", body); // Debug log
+// Convert Firebase Storage paths to full URLs
+function processFirebasePath(path, type = "image") {
+  if (!path || path.trim() === "") return null;
 
-  // Split content by --- but preserve the structure
-  const sections = body.split(/\n---\n/).filter((section) => section.trim());
+  if (path.startsWith("gs://") || path.startsWith("http")) {
+    return path;
+  }
 
-  return sections
-    .map((sectionText, index) => {
-      const currentSection = {
-        type: "section",
-        title: "",
-        content: "",
-        images: [],
-        subsections: [],
-      };
+  const BASE_IMAGE_STORAGE_URL =
+    "gs://toolboxwars-d5bd0.firebasestorage.app/images/blogs/";
+  const BASE_VIDEO_STORAGE_URL =
+    "gs://toolboxwars-d5bd0.firebasestorage.app/videos/blogs/";
 
-      let remainingContent = sectionText.trim();
+  return type === "video"
+    ? `${BASE_VIDEO_STORAGE_URL}${path}`
+    : `${BASE_IMAGE_STORAGE_URL}${path}`;
+}
 
-      // 1. Extract Type (if present, usually at the very beginning)
-      const typeMatch = remainingContent.match(/^type:\s*"([^"]+)"/m);
-      if (typeMatch) {
-        currentSection.type = typeMatch[1];
-        remainingContent = remainingContent.replace(typeMatch[0], "").trim();
-      }
+// Normalize a blog object into render-friendly data
+export function parseContent(blogData) {
+  if (!blogData || !Array.isArray(blogData.sections)) return [];
 
-      // 2. Extract Main Title (## or # heading)
-      const titleMatch = remainingContent.match(/^#{1,2}\s+(.+)$/m);
-      if (titleMatch) {
-        currentSection.title = titleMatch[1].trim();
-        remainingContent = remainingContent.replace(titleMatch[0], "").trim();
-      }
+  return blogData.sections.map((section) => {
+    const paragraphs =
+      section.paragraphs?.map((p) => {
+        // Normalize paragraph.content
+        const contentBlocks = Array.isArray(p.content)
+          ? p.content
+          : [{ type: "text", content: p.content || "" }];
 
-      // 3. Process Images and remove them from content
-      // Use a temporary array to store lines that are NOT images
-      const linesAfterTitleAndType = remainingContent.split("\n");
-      const nonImageLines = [];
+        return {
+          content: contentBlocks,
+          images:
+            p.images?.map((img) => ({
+              ...img,
+              src: processFirebasePath(img.src, "image"),
+            })) || [],
+        };
+      }) || [];
 
-      linesAfterTitleAndType.forEach((line) => {
-        const customImageMatch = line.match(
-          /Image\s*:\s*\n\s*alt\s+"([^"]+)"\s*\n\s*(gs:\/\/[^\s\n]+)/
-        );
-        const markdownImageMatch = line.match(/!\[([^\]]*)\]$$([^)]+)$$/); // Corrected regex
+    const bullets =
+      section.bullets?.map((b) => ({
+        title: b.title,
+        items: b.items,
+      })) || [];
 
-        if (customImageMatch) {
-          currentSection.images.push({
-            src: customImageMatch[2],
-            alt: customImageMatch[1],
-          });
-        } else if (markdownImageMatch) {
-          currentSection.images.push({
-            src: markdownImageMatch[2],
-            alt: markdownImageMatch[1],
-          });
-        } else {
-          nonImageLines.push(line);
-        }
-      });
+    return {
+      type: section.type || "section",
+      heading: section.heading || null,
+      paragraphs,
+      bullets,
+    };
+  });
 
-      remainingContent = nonImageLines.join("\n").trim();
-
-      // 4. Process Subsections and remove them from content
-      const tempSubsections = [];
-      // Regex to find ### headings and their content until another heading or end of section
-      const subsectionRegex =
-        /^###\s+(.+?)$([\s\S]*?)(?=\n(?:###|##|#|---|$))/gm;
-      const lastIndex = 0;
-      let match;
-
-      // Collect all subsection matches and their start/end indices
-      const subsectionRanges = [];
-      while ((match = subsectionRegex.exec(remainingContent)) !== null) {
-        subsectionRanges.push({
-          match: match,
-          start: match.index,
-          end: match.index + match[0].length,
-        });
-      }
-
-      // Reconstruct main content by taking parts *between* subsections
-      const mainContentParts = [];
-      let currentContentStart = 0;
-
-      subsectionRanges.forEach((subInfo) => {
-        // Add content before this subsection
-        const contentBeforeSub = remainingContent
-          .substring(currentContentStart, subInfo.start)
-          .trim();
-        if (contentBeforeSub) {
-          mainContentParts.push(contentBeforeSub);
-        }
-
-        const subsectionTitle = subInfo.match[1].trim();
-        const subsectionBody = subInfo.match[2].trim();
-
-        const subImages = [];
-        const subBodyLines = subsectionBody.split("\n");
-        const subNonImageLines = [];
-
-        subBodyLines.forEach((subLine) => {
-          const subCustomImageMatch = subLine.match(
-            /Image\s*:\s*\n\s*alt\s+"([^"]+)"\s*\n\s*(gs:\/\/[^\s\n]+)/
-          );
-          const subMarkdownImageMatch = subLine.match(
-            /!\[([^\]]*)\]$$([^)]+)$$/
-          ); // Corrected regex
-
-          if (subCustomImageMatch) {
-            subImages.push({
-              src: subCustomImageMatch[2],
-              alt: subCustomImageMatch[1],
-            });
-          } else if (subMarkdownImageMatch) {
-            subImages.push({
-              src: subMarkdownImageMatch[2],
-              alt: subMarkdownImageMatch[1],
-            });
-          } else {
-            subNonImageLines.push(subLine);
-          }
-        });
-
-        tempSubsections.push({
-          title: subsectionTitle,
-          content: subNonImageLines.join("\n").trim(),
-          ...(subImages.length > 0 && { images: subImages }),
-        });
-
-        currentContentStart = subInfo.end;
-      });
-
-      // Add any remaining content after the last subsection
-      const contentAfterLastSub = remainingContent
-        .substring(currentContentStart)
-        .trim();
-      if (contentAfterLastSub) {
-        mainContentParts.push(contentAfterLastSub);
-      }
-
-      currentSection.content = mainContentParts.join("\n\n").trim(); // Join with double newline for paragraphs
-      currentSection.subsections = tempSubsections;
-
-      console.log(`Section ${index} result:`, currentSection); // Debug log
-      return currentSection;
-    })
-    .filter(Boolean);
 }
 
 // Helper function to parse frontmatter - updated to handle both formats

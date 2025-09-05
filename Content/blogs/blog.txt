@@ -1,0 +1,196 @@
+// Article Hero Information Stored in the blogID document field
+
+
+articleTitle: "Blog Test 3" 
+authorName: "Max Morgan" 
+aurthorID: "TBW_MM_1"
+publishedDate: "2020-01-24"
+subtitle: "From Weekend Warrior to Pro Factory Rider. Here are the 9 tools you can't live without when between the tape."
+heroImage: "PrivateerToolBox/ProToolBoxCheck_1.webp"
+heroImageAlt: "Pedro Pro Tool Box"
+tags: ["Racing", "Tools", "DIY"]
+status: "published"
+
+
+
+
+
+  // Create Sub Collection within Blog Document .... one for any uploaded text content ... one for any article photos and thier links to the seperate firebase storage folder and then any video links the collection id should always follow this example path structure 
+  for photos: 
+    /blogs/bxxr6AmLKSKMF12rTqyB/img/ProToolBoxCheck_1
+
+  for videos:
+    /blogs/bxxr6AmLKSKMF12rTqyB/video/ProToolBoxCheckVideoLink
+
+
+imageContent:
+  [
+    {
+      type: "image",
+      id: "ProToolBoxCheck_1",
+      alt: "Pedros Master Tool Kit Box",
+      src: "PrivateerToolBox/ProToolBoxCheck_1.webp",
+    },
+    {
+      type: "image",
+      id: "ProToolBoxCheck_3",
+      alt: "Main top lid layer",
+      src: "PrivateerToolBox/ProToolBoxCheck_3.webp",
+    },
+    {
+      type: "image",
+      id: "ProToolBoxCheck_4",
+      alt: "Main bottom layer",
+      src: "PrivateerToolBox/ProToolBoxCheck_4.webp",
+    },
+    {
+      type: "image",
+      id: "ProToolBoxCheck_15",
+      alt: "Wera Hex Keys",
+      src: "PrivateerToolBox/ProToolBoxCheck_15.webp",
+    },{
+      type: "image",
+      id: "ProToolBoxCheck_16",
+      alt: "Wera Torx Set",
+      src: "PrivateerToolBox/ProToolBoxCheck_16.webp",
+    },
+    {
+      type: "image",
+      id: "ProToolBoxCheck_13",
+      alt: "Topeak Electirc Pressure Guage",
+      src: "PrivateerToolBox/ProToolBoxCheck_13.webp",
+    },
+    {
+      type: "image",
+      id: "ProToolBoxCheck_17",
+      alt: "Metal Tape Measurer",
+      src: "PrivateerToolBox/ProToolBoxCheck_17.webp",
+    },
+    {
+      type: "image",
+      id: "ProToolBoxCheck_8",
+      alt: "Park Tool Torque Wrench",
+      src: "PrivateerToolBox/ProToolBoxCheck_8.webp",
+    },{
+      type: "image",
+      id: "ProToolBoxCheck_14",
+      alt: "Knipex 86 03 180 7in Pliers",
+      src: "PrivateerToolBox/ProToolBoxCheck_14.webp",
+    },
+    {
+      type: "image",
+      id: "ProToolBoxCheck_12",
+      alt: "Wera 1/4 Drive Zyklop Speed Ratchet",
+      src: "PrivateerToolBox/ProToolBoxCheck_12.webp",
+    },
+    
+  ]
+
+VideoContent: 
+
+[ 
+    { 
+        type: "video"
+        id: "ProToolBoxCheck_Video_Link"
+        src: "PrivateerToolBox/ProToolBoxCheckVideoLink.mp4"
+    }
+]
+
+fullContent: 
+
+[ 
+    { 
+        section: "Intro"    
+        text: Having the right set of tools makes getting the job done much easier and alot of the time safer. In this article, we are going to be taking a close look at Max Morgan's tool box that he carries from race to race. Inside you will find just about everything you need to get through a race weekend, from your standard set of hex keys to hub bearing press tools. Check out which tools are his favorites and which ones he can't go without!
+
+        images: [ ]
+
+        videos: [ ]      
+    }
+
+    { 
+        section: "Main"    
+        heading: "h1"
+        title: "The Case" 
+        text: [
+            "This hard case is a Pedro's Master Tool Kit Box. Pedro's offers their Master Box both empty and as a full kit. I started with an empty box—that way I could fill the box with exactly the tools I wanted to use.",
+            "There are certainly times when the toolbox gets thrown in the back of the truck and gets beaten around on the way to the mountain. I've used this same box for the last three to four years with no problems. It has been all the way around the world multiple times, and so having this bulletproof case from Pedro's has made all the difference keeping my expensive tools inside safe."
+            ]
+
+            subSections: [ "The Layers", "Tools You Cannot Go without" ]
+
+        images: [ ProToolBoxCheck_1 ]
+
+        videos: [ ]      
+    }
+
+    { 
+        section: "subSection"    
+        heading: "h2"
+        title: "The Layers" 
+        text: [
+            
+            ]
+
+            subSections: [ ]
+
+        images: [ ProToolBoxCheck_3, ProToolBoxCheck_4 ]
+
+        videos: [ ]      
+    }
+
+     { 
+        section: "subSection"    
+        heading: "h2"
+        title: "Tools You Cannot Go without" 
+        text: [
+            
+            ]
+
+            subSections: [ "Wera Hex Plus Allen Keys" , "Wera Torx L-Key Set"  ]
+
+        images: [ ProToolBoxCheck_3, ProToolBoxCheck_4 ]
+
+        videos: [ ]      
+    }
+
+     { 
+        section: "subSubSection"    
+        heading: "h3"
+        title: "Wera Hex Plus Allen Keys" 
+        text: [ 
+            "Everyone needs a set of allen keys to work on their bike. No matter if you are working in a professional bike shop, doing regular bike maintenance at home in the garage, or have a travel tool case like this one, you will definitely be using a set of L-shape allen keys.", 
+
+            "I choose to use the Wera Hex Plus allen keys because they are made from high quality materials, there Hex Plus design grabs bolt heads nicely without damaging them, and the color coordination makes picking up each size second nature. Over time you just know the orange hex key is a 5mm."
+            
+            ]
+
+            subSections: [  ]
+
+        images: [ ProToolBoxCheck_15 ]
+
+        videos: [ ]      
+    }
+
+    { 
+        section: "subSubSection"    
+        heading: "h3"
+        title: "Wera Torx L-Key Set" 
+        text: [ 
+            "Just like the hex L-key set from Wera, I decided to get the same style for Torx as well. This set includes a T8 all the way up to T40. Although not all of these sizes are commonly seen on mountain bikes, I like to keep them in the tool box anyway. They are perfect for installing brake rotor bolts and removing brake bleed port screws."
+            
+            ]
+
+            subSections: [  ]
+
+        images: [ ProToolBoxCheck_16 ]
+
+        videos: [ ]      
+    }
+]
+
+
+
+// this strucutre would continue for each set of ## indicating a sub section h2 & #### for any subSubSection h3
+
+with any imagesID being placed in the images array 

@@ -12,6 +12,11 @@ const firebaseConfig = {
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
+const wordPressConfig = {
+  WORDPRESS_URL: process.env.REACT_APP_WORDPRESS_URL
+
+}
+
 // const app = initializeApp(firebaseConfig);
 
-export { firebaseConfig };
+export { firebaseConfig, wordPressConfig };

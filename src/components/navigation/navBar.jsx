@@ -26,7 +26,7 @@ import CartModal from "../store/cart/cartModal";
 const pages = [
   { label: "Blogs", path: "/blogs" },
   { label: "ShowCase", path: "/showcases" },
-  { label: "Shop", path: "/shop" },
+  // { label: "Shop", path: "/shop" },
 ];
 
 const settings = ["Profile", "Settings", "Logout"];
@@ -134,7 +134,7 @@ export default function Navbar() {
         position="static"
         sx={{
           height: "100px",
-          backgroundImage: `linear-gradient(to left, #584d4d 40%, rgba(88, 77, 77, 0)), url('/Img/logos/camo.avif')`,
+          background:"#4d4a48",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
@@ -157,7 +157,7 @@ export default function Navbar() {
               <Box
                 component="img"
                 src="/Img/logos/LeTourDeToolBox.png"
-                alt="ToolBoxWarz Logo"
+                alt="The Bike Bench Logo"
                 sx={{ height: 125, width: "auto", mr: 1 }}
               />
               <Typography
@@ -173,7 +173,7 @@ export default function Navbar() {
                   textDecoration: "none",
                 }}
               >
-                ToolBoxWarz
+                The Bike Bench
               </Typography>
             </Box>
 
@@ -226,7 +226,7 @@ export default function Navbar() {
                 textDecoration: "none",
               }}
             >
-              ToolBoxWarz
+              The Bike Bench 
             </Typography>
 
             {/* Desktop Links */}
@@ -245,7 +245,7 @@ export default function Navbar() {
             </Box>
 
             {/* Search Bar */}
-            <Search>
+            {/* <Search>
               <SearchIconWrapper>
                 <SearchIcon />
               </SearchIconWrapper>
@@ -253,16 +253,16 @@ export default function Navbar() {
                 placeholder="Search…"
                 inputProps={{ "aria-label": "search" }}
               />
-            </Search>
+            </Search> */}
 
             {/* Cart Icon */}
-            <Box sx={{ mx: 2 }}>
+            {/* <Box sx={{ mx: 2 }}>
               <IconButton size="large" color="inherit" onClick={handleOpenCart}>
                 <Badge badgeContent={cartItems.length} color="error">
                   <ShoppingCartIcon />
                 </Badge>
               </IconButton>
-            </Box>
+            </Box> */}
 
             {/* Avatar/Account */}
             <Box sx={{ flexGrow: 0 }}>
