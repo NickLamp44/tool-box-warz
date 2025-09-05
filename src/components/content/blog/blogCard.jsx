@@ -12,6 +12,7 @@ import {
   Avatar,
   IconButton,
   Typography,
+  Chip,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
@@ -21,6 +22,7 @@ export default function BlogCard({ blog }) {
   const [isFavorited, setIsFavorited] = useState(false);
 
   if (!blog) return null;
+
 
   const extractFeaturedImage = (post) => {
     // Try embedded featured media first
@@ -88,6 +90,7 @@ export default function BlogCard({ blog }) {
       .toUpperCase();
   };
 
+
   const handleFavoriteClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -105,12 +108,13 @@ export default function BlogCard({ blog }) {
     ? `/blog/${processedBlog.slug}`
     : `/blog/${processedBlog.id}`;
 
+
   return (
     <Link to={blogLink} style={{ textDecoration: "none" }}>
       <Card
         sx={{
           width: { xs: "100%", sm: 300, md: 345 },
-          height: 420,
+          height: 480,
           display: "flex",
           flexDirection: "column",
           padding: 2,
@@ -131,7 +135,7 @@ export default function BlogCard({ blog }) {
           },
         }}
       >
-        {/* Image with Hover Effect */}
+        {/* Hero Image */}
         <Box
           sx={{
             position: "relative",
@@ -142,8 +146,10 @@ export default function BlogCard({ blog }) {
         >
           <CardMedia
             component="img"
+
             image={processedBlog.image}
             alt={processedBlog.title}
+
             className="blog-image"
             sx={{
               width: "100%",
@@ -153,7 +159,7 @@ export default function BlogCard({ blog }) {
             }}
           />
 
-          {/* Subtle overlay on hover */}
+          {/* Overlay on hover */}
           <Box
             sx={{
               position: "absolute",
@@ -188,7 +194,9 @@ export default function BlogCard({ blog }) {
               }}
               aria-label="author"
             >
+
               {getInitials(processedBlog.author)}
+
             </Avatar>
           }
           title={
@@ -225,6 +233,7 @@ export default function BlogCard({ blog }) {
                 mt: 0.5,
               }}
             >
+
               {processedBlog.date instanceof Date
                 ? processedBlog.date.toLocaleDateString("en-US", {
                     year: "numeric",
@@ -236,6 +245,7 @@ export default function BlogCard({ blog }) {
                     month: "short",
                     day: "numeric",
                   })}
+
             </Typography>
           }
           sx={{
@@ -259,6 +269,7 @@ export default function BlogCard({ blog }) {
             flexDirection: "column",
           }}
         >
+
           <Typography
             variant="body2"
             color="text.secondary"
@@ -273,6 +284,7 @@ export default function BlogCard({ blog }) {
           >
             {processedBlog.previewText}
           </Typography>
+
           <Box sx={{ flexGrow: 1 }} />
         </CardContent>
 

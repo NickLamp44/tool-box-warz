@@ -6,7 +6,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../services/firebase";
 import { parseContent } from "../../util/parseContent";
 
-// Recursively remove null/undefined
+
 function cleanObject(obj) {
   if (Array.isArray(obj)) {
     return obj.map(cleanObject).filter((v) => v !== undefined && v !== null);
@@ -29,8 +29,10 @@ export default function ContentUploader() {
   const [customCollection, setCustomCollection] = useState("");
 
   const handleUpload = async () => {
+
     if (!file) {
       setStatus("❌ No file selected.");
+
       return;
     }
 
@@ -43,6 +45,7 @@ export default function ContentUploader() {
     setStatus("⏳ Parsing and uploading...");
 
     try {
+
       const fileText = await file.text();
       let data = {};
       let sections = [];
@@ -57,6 +60,8 @@ export default function ContentUploader() {
         data = parsed.attributes;
         sections = parseContent(parsed.body); // normalize into sections
       }
+
+
 
       // ✅ Upload any additional media files
       const storage = getStorage();
@@ -87,6 +92,7 @@ export default function ContentUploader() {
 
       // ✅ Upload blog doc to Firestore
       await addDoc(collection(db, targetCollection), mainDoc);
+
 
       setStatus(`✅ Content uploaded to "${targetCollection}" successfully!`);
     } catch (err) {

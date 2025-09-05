@@ -1,5 +1,7 @@
 ---
+
 title: "Blog Test 2"
+
 author: "Max Morgan"
 publishedDate: "2020-01-24"
 subtitle: "From Weekend Warrior to Pro Factory Rider. Here are the 9 tools you can't live without when between the tape."

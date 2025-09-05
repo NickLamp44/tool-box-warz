@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
 import {
   Container,
   Typography,
@@ -213,7 +214,6 @@ const parseWordPressContent = (htmlContent) => {
   };
 };
 
-export default function BlogWPArticle() {
   const { blogId } = useParams();
   const [blog, setBlog] = useState(null);
   const [error, setError] = useState("");
@@ -222,6 +222,7 @@ export default function BlogWPArticle() {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
+
         const wpUrl = process.env.REACT_APP_WORDPRESS_URL;
         if (!wpUrl) {
           setError("WordPress URL not configured.");
@@ -231,6 +232,7 @@ export default function BlogWPArticle() {
         let url;
         if (isNaN(blogId)) {
           url = `${wpUrl}/posts?slug=${blogId}&_embed`;
+
         } else {
           url = `${wpUrl}/posts/${blogId}?_embed`;
         }
@@ -271,7 +273,9 @@ export default function BlogWPArticle() {
 
         setBlog(blogData);
       } catch (err) {
+
         console.error("Error fetching WordPress blog:", err);
+
         setError("Failed to fetch blog");
       } finally {
         setLoading(false);
@@ -280,6 +284,7 @@ export default function BlogWPArticle() {
 
     fetchBlog();
   }, [blogId]);
+
 
   if (loading) {
     return (
@@ -292,6 +297,7 @@ export default function BlogWPArticle() {
         >
           <CircularProgress size={60} />
         </Box>
+
       </Container>
     );
   }
@@ -342,8 +348,10 @@ export default function BlogWPArticle() {
             backgroundRepeat: "no-repeat",
             backgroundSize: "cover",
             backgroundPosition: "center",
+
           }}
         >
+
           {/* Overlay for better text readability */}
           <Box
             sx={{
@@ -469,6 +477,7 @@ export default function BlogWPArticle() {
           }}
         />
       </Paper>
+
     </Container>
   );
 }
