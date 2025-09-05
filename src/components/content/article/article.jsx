@@ -12,6 +12,7 @@ import {
   Alert,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { decodeHtmlEntities } from "../../../util/htmlDecoder";
 // Pages & Components
 import Comments from "../comments/comments";
 
@@ -395,7 +396,7 @@ export default function Article({
               maxWidth: "90%",
             }}
           >
-            {coverBlock?.title || article.title?.rendered}
+            {decodeHtmlEntities(coverBlock?.title || article.title?.rendered)}
           </Typography>
 
           <Box

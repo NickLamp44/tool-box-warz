@@ -130,7 +130,7 @@ export default function Blogs() {
   return (
     <Container sx={{ my: 6 }}>
       <Typography variant="h4" gutterBottom>
-        Our Blogs
+        Blogs
       </Typography>
 
       <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>

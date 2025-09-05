@@ -12,16 +12,10 @@ import {
 } from "@mui/material";
 import ArticleCard from "../article/articleCard";
 
-const categories = [
-  "All",
-  "Bike Builds",
-  "Custom Parts",
-  "Modifications",
-  "Reviews",
-];
+const categories = ["All", "ShowCASE", "Custom Tools", "TBOY"];
 
 export default function FeaturedShowCase() {
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState("");
   const [showcases, setShowcases] = useState([]);
   const [loadingShowcases, setLoadingShowcases] = useState(true);
 
@@ -44,7 +38,7 @@ export default function FeaturedShowCase() {
           const categoryData = await categoriesResponse.json();
           const showcaseCategory = categoryData.find(
             (cat) =>
-              cat.name.toLowerCase().includes("showcase") ||
+              cat.name.toLowerCase().includes("ShowCASE") ||
               cat.slug.toLowerCase().includes("showcase")
           );
           if (showcaseCategory) {

@@ -130,7 +130,7 @@ export default function ShowCase() {
   return (
     <Container sx={{ my: 6 }}>
       <Typography variant="h4" gutterBottom>
-        Our ShowCases
+        ShowCASE
       </Typography>
 
       <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>

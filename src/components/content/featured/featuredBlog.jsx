@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import ArticleCard from "../article/articleCard";
 
-const categories = ["How To", "Product Review", "Tools", "Brakes"];
+const categories = [ "All", "How To", "Product Review",];
 
 export default function FeaturedBlogs() {
   const [activeCategory, setActiveCategory] = useState("");

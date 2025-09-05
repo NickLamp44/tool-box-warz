@@ -16,6 +16,7 @@ import {
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import { red } from "@mui/material/colors";
+import { decodeHtmlEntities } from "../../../util/htmlDecoder";
 
 export default function ArticleCard({ article, type = "blog" }) {
   const [isFavorited, setIsFavorited] = useState(false);
@@ -71,7 +72,7 @@ export default function ArticleCard({ article, type = "blog" }) {
     ...article,
     image: article.image || extractFeaturedImage(article),
     author: article.author || extractAuthorName(article),
-    title: article.title?.rendered || article.title,
+    title: decodeHtmlEntities(article.title?.rendered || article.title),
     previewText:
       article.previewText ||
       article.excerpt?.rendered?.replace(/<[^>]*>/g, "") ||

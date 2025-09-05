@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Box, Typography, Chip, IconButton, Paper } from "@mui/material";
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import { decodeHtmlEntities } from "../../../util/htmlDecoder";
 
 export default function HeroCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -23,7 +24,7 @@ export default function HeroCarousel() {
     if (embeddedImage && embeddedImage.source_url && !embeddedImage.code) {
       return {
         src: embeddedImage.source_url,
-        alt: embeddedImage.alt_text || post.title.rendered,
+        alt: embeddedImage.alt_text || decodeHtmlEntities(post.title.rendered),
       };
     }
 
@@ -36,7 +37,7 @@ export default function HeroCarousel() {
       if (firstImg && firstImg.src) {
         return {
           src: firstImg.src,
-          alt: firstImg.alt || post.title.rendered,
+          alt: firstImg.alt || decodeHtmlEntities(post.title.rendered),
         };
       }
     }
@@ -44,7 +45,7 @@ export default function HeroCarousel() {
     // Fallback to placeholder
     return {
       src: "/blog-hero.png",
-      alt: post.title.rendered,
+      alt: decodeHtmlEntities(post.title.rendered),
     };
   };
 
@@ -87,7 +88,7 @@ export default function HeroCarousel() {
 
         const blogs = posts.map((post) => ({
           id: post.id,
-          title: post.title.rendered,
+          title: decodeHtmlEntities(post.title.rendered),
           authorName: post._embedded?.author?.[0]?.name || "Unknown Author",
           publishedDate: new Date(post.date).toLocaleDateString("en-US", {
             year: "numeric",
@@ -127,7 +128,7 @@ export default function HeroCarousel() {
   const currentSlide = blogSlides[currentIndex];
 
   return (
-    <Box sx={{ maxWidth: "80%", padding: "10",margin: "0 auto", position: "relative" }}>
+    <Box sx={{ maxWidth: "80%", margin: "0 auto", position: "relative" }}>
       <Paper
         elevation={3}
         sx={{
