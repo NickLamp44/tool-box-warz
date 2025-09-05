@@ -127,7 +127,7 @@ export default function HeroCarousel() {
   const currentSlide = blogSlides[currentIndex];
 
   return (
-    <Box sx={{ maxWidth: "80%", margin: "0 auto", position: "relative" }}>
+    <Box sx={{ maxWidth: "80%", padding: "10",margin: "0 auto", position: "relative" }}>
       <Paper
         elevation={3}
         sx={{

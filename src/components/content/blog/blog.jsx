@@ -20,6 +20,47 @@ const WordPressContent = styled(Box)(({ theme }) => ({
     borderRadius: theme.spacing(1),
     margin: theme.spacing(2, 0),
   },
+  "& .wp-block-media-text": {
+    display: "flex !important",
+    alignItems: "center !important",
+    gap: `${theme.spacing(3)} !important`,
+    margin: `${theme.spacing(3, 0)} !important`,
+    // Handle different media positions
+    "&.has-media-on-the-right": {
+      flexDirection: "row-reverse !important",
+    },
+    // Responsive behavior - stack on mobile
+    [theme.breakpoints.down("md")]: {
+      flexDirection: "column !important",
+      "&.has-media-on-the-right": {
+        flexDirection: "column !important",
+      },
+    },
+    "& .wp-block-media-text__media": {
+      flex: "0 0 50% !important",
+      margin: "0 !important",
+      "& img": {
+        width: "100% !important",
+        height: "auto !important",
+        margin: "0 !important",
+        borderRadius: `${theme.spacing(1)} !important`,
+      },
+    },
+    "& .wp-block-media-text__content": {
+      flex: "1 !important",
+      padding: `0 !important`,
+      "& p": {
+        margin: `${theme.spacing(1, 0)} !important`,
+      },
+      "& ul, & ol": {
+        paddingLeft: `${theme.spacing(3)} !important`,
+        margin: `${theme.spacing(1, 0)} !important`,
+      },
+      "& li": {
+        marginBottom: `${theme.spacing(0.5)} !important`,
+      },
+    },
+  },
   "& .wp-block-gallery": {
     display: "grid !important",
     gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr)) !important",
